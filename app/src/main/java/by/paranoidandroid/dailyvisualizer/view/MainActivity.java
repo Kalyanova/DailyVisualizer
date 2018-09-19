@@ -3,7 +3,6 @@ package by.paranoidandroid.dailyvisualizer.view;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import by.paranoidandroid.dailyvisualizer.R;
-
 public class MainActivity extends AppCompatActivity {
 
   @Override
