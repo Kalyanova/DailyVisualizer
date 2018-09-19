@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="timeline_line_width">1dp</dimen>
+  <dimen name="timeline_margins">10dp</dimen>
+  <dimen name="timeline_circle_diametr">11dp</dimen>
+  <dimen name="timeline_inner_margins">7dp</dimen>
+  <dimen name="timeline_image_size">80dp</dimen>
+</resources>
