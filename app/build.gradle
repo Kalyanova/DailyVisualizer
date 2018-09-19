@@ -36,4 +36,6 @@ dependencies {
     
     implementation "com.google.android.material:material:$jetpackVersion"
     implementation 'androidx.recyclerview:recyclerview:1.0.0-alpha1'
+
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
 }

@@ -1,5 +1,6 @@
 package by.paranoidandroid.dailyvisualizer.model.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -12,8 +13,8 @@ public interface DayDao {
   @Query("SELECT * FROM DAY")
   List<Day> getAll();
 
-  @Query("SELECT * FROM DAY WHERE date = :date")
-  Day getDay(String date);
+  @Query("SELECT * FROM DAY WHERE date LIKE :date")
+  LiveData<Day> getDay(String date);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(Day... days);
