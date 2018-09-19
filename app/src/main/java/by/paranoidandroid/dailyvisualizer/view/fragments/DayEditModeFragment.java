@@ -75,9 +75,7 @@ public class DayEditModeFragment extends DayParentFragment {
             viewModel.insertDay(day);
             // Here we try to close edit mode fragment like Activity with finish()
             getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(this)
-                    .commit();
+                    .popBackStack();
         });
 
         fabAdd = view.findViewById(R.id.fab_add);
