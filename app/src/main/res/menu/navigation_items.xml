@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_search"
+        android:title="@string/menu_search"
+        android:icon="@drawable/ic_search" />
+    <item android:id="@+id/action_calendar"
+        android:title="@string/menu_calendar"
+        android:icon="@drawable/ic_calendar" />
+    <item android:id="@+id/action_day"
+        android:title="@string/menu_day"
+        android:icon="@drawable/ic_view_day" />
+    <item android:id="@+id/action_settings"
+        android:title="@string/menu_settings"
+        android:icon="@drawable/ic_settings" />
+</menu>

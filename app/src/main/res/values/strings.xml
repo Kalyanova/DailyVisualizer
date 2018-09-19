@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">DailyVisualizer</string>
+  <string name="menu_search">Search</string>
+  <string name="menu_calendar">Calendar</string>
+  <string name="menu_day">Day</string>
+  <string name="menu_settings">Settings</string>
+  <string name="btn_search">Find</string>
 </resources>
