@@ -1,12 +1,13 @@
 package by.paranoidandroid.dailyvisualizer.view;
 
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_ACTIVE_FRAGMENT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_1;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_2;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_3;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_4;
+
 import android.os.Bundle;
 import android.text.TextUtils;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.Calendar;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -16,12 +17,8 @@ import by.paranoidandroid.dailyvisualizer.view.fragments.CalendarFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SearchFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SettingsFragment;
-
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_ACTIVE_FRAGMENT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_1;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_2;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_3;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_4;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener {
     private Fragment active;
