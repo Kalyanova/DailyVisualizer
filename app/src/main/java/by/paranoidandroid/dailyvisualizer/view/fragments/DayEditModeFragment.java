@@ -109,8 +109,8 @@ public class DayEditModeFragment extends DayParentFragment {
             // TODO: change it - add saving other stuff (image, location and etc.) to database
             String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
             Day day = new Day(date,
-                etTitle.getText().toString(),
-                etDescription.getText().toString());
+                etTitle.getText().toString().trim(),
+                etDescription.getText().toString().trim());
             if (img != null) {
                 Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

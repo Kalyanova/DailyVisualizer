@@ -48,7 +48,7 @@ public class SearchFragment extends Fragment {
                 progressBar.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
                 tvNothingToShow.setVisibility(View.GONE);
-                model.setSearchQuery(s);
+                model.setSearchQuery(s.trim());
                 return false;
             }
 
