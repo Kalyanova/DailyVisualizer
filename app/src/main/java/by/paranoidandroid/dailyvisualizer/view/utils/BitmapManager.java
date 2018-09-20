@@ -1,4 +1,4 @@
-package by.paranoidandroid.dailyvisualizer.view.Utils;
+package by.paranoidandroid.dailyvisualizer.view.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

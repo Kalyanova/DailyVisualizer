@@ -35,7 +35,7 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
-import by.paranoidandroid.dailyvisualizer.view.Utils.BitmapManager;
+import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.ByteArrayOutputStream;
