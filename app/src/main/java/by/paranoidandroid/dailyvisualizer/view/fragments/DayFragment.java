@@ -1,6 +1,7 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
@@ -100,9 +101,12 @@ public class DayFragment extends DayParentFragment {
                         + day.getDescription());
                 if(day.getImage() != null){
                     ivDay.setImageBitmap(BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length));
+                } else {
+                    ivDay.setImageDrawable(null);
                 }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
+                ivDay.setImageDrawable(null);
             }
         });
         return view;
