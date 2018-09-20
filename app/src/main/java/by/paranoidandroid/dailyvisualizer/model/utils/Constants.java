@@ -13,6 +13,7 @@ public interface Constants {
     String FRAGMENT_TAG_5 = "5";
     String DATE_FORMAT = "%04d.%02d.%02d";
 
-    static final int REQUEST_IMAGE_SHAPSHOT = 1;
-    static final int REQUEST_PERMISSION_FOR_SNAPSHOT = 2;
+    int REQUEST_IMAGE_SHAPSHOT = 1;
+    int REQUEST_PERMISSION_FOR_SNAPSHOT = 2;
+    int REQUEST_PERMISSION_FOR_LOCATION = 3;
 }

@@ -1,6 +1,7 @@
 package by.paranoidandroid.dailyvisualizer.model.database;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -13,8 +14,8 @@ public class Day {
   private String title;
   private String description;
   private String music;
-  private float latitude;
-  private float longitude;
+  private String latitude;
+  private String longitude;
 
   public Day(String date, String title, String description) {
     this.date = date;
@@ -57,20 +58,20 @@ public class Day {
     this.music = music;
   }
 
-  public float getLatitude() {
+  public String getLatitude() {
     return latitude;
   }
 
-  public void setLatitude(float latitude) {
+  public void setLatitude(String latitude) {
     this.latitude = latitude;
   }
 
-  public float getLongitude() {
+  public String getLongitude() {
     return longitude;
   }
 
-  public void setLongitude(float longitude) {
-    this.longitude = longitude;
+  public void setLongitude(String longitude) {
+    this.longitude = String.valueOf(longitude);
   }
 
   public byte[] getImage() {
