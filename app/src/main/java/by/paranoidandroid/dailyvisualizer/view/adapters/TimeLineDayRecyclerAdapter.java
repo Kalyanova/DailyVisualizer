@@ -9,6 +9,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import java.util.List;
+import java.util.Locale;
+import org.joda.time.LocalDate;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDayRecyclerAdapter.ViewHolder> {
 
@@ -52,14 +57,29 @@ public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDay
       tvDate = view.findViewById(R.id.timeline_item_text_view_date);
     }
 
-    //TODO: implement this method
-    private String getPreviewDate(String date){
-      return "1 week ago";
+    private String getPreviewDate(LocalDate date){
+      LocalDate now = LocalDate.now();
+      Period period = new Period(date, now);
+
+      if(period.getYears() != 0) {
+        return tvDate.getContext().getResources().getQuantityString(R.plurals.timeline_year, period.getYears(), period.getYears());
+      } else if(period.getMonths() != 0){
+        return tvDate.getResources().getQuantityString(R.plurals.timeline_month, period.getMonths(), period.getMonths());
+      } else if(period.getWeeks() != 0){
+        return tvDate.getResources().getQuantityString(R.plurals.timeline_week, period.getWeeks(), period.getWeeks());
+      } else{
+        return tvDate.getResources().getQuantityString(R.plurals.timeline_days, period.getDays(), period.getDays());
+      }
     }
 
+
     public void bind(Day day){
-      tvDatePreview.setText(getPreviewDate(day.getDate()));
-      tvDate.setText(day.getDate());
+      DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy.MM.dd").withLocale(Locale.UK);
+      LocalDate date = fmt.parseLocalDate(day.getDate());
+      DateTimeFormatter fmtDay = DateTimeFormat.forPattern("d MMMM, yyyy").withLocale(Locale.UK);
+      tvDate.setText(date.toString(fmtDay));
+      tvDatePreview.setText(getPreviewDate(date));
+
       tvTitle.setText(day.getTitle());
 
       //TODO: implement setting picture
