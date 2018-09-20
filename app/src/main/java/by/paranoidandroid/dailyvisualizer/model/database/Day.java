@@ -13,8 +13,8 @@ public class Day {
   private String title;
   private String description;
   private String music;
-  private float lattitude;
-  private float longtitude;
+  private float latitude;
+  private float longitude;
 
   public Day(String date, String title, String description) {
     this.date = date;
@@ -57,20 +57,20 @@ public class Day {
     this.music = music;
   }
 
-  public float getLattitude() {
-    return lattitude;
+  public float getLatitude() {
+    return latitude;
   }
 
-  public void setLattitude(float lattitude) {
-    this.lattitude = lattitude;
+  public void setLatitude(float latitude) {
+    this.latitude = latitude;
   }
 
-  public float getLongtitude() {
-    return longtitude;
+  public float getLongitude() {
+    return longitude;
   }
 
-  public void setLongtitude(float longtitude) {
-    this.longtitude = longtitude;
+  public void setLongitude(float longitude) {
+    this.longitude = longitude;
   }
 
   public byte[] getImage() {

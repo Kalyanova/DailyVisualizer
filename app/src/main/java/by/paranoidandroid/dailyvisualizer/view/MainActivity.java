@@ -1,10 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view;
 
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_ACTIVE_FRAGMENT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_1;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_2;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_3;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_4;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,14 +12,24 @@ import by.paranoidandroid.dailyvisualizer.view.fragments.CalendarFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SearchFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SettingsFragment;
+
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_ACTIVE_FRAGMENT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_1;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_2;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_3;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_4;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener {
+
+public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener,
+        DayFragment.OnDayEditModeListener {
     private Fragment active;
     private FragmentManager fm;
     private Fragment searchFragment, calendarFragment, dayFragment, settingsFragment;
     private BottomNavigationView bottomNavigationView;
+    private boolean isEditModeOpened;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +78,24 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
                 settingsFragment = fm.findFragmentByTag(FRAGMENT_TAG_4);
                 active = fm.findFragmentByTag(ACTIVE_FRAGMENT_TAG);
             }
+
+            // TODO: change it - retain edit mode window across configuration changes
+            // Now edit mode window is quietly closed if configuration change occurs
+            Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+            if (editModeFragment != null) {
+                fm.beginTransaction().remove(editModeFragment).commit();
+                isEditModeOpened = false;
+            }
         }
 
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 item -> {
+                    Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+                    if (editModeFragment != null) {
+                        fm.beginTransaction().remove(editModeFragment).commit();
+                        isEditModeOpened = false;
+                        // TODO: maybe show dialog asking do you really want exit edit mode without saving
+                    }
                     switch (item.getItemId()) {
                         case R.id.action_search:
                             resetActive(searchFragment);
@@ -129,5 +148,19 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     private void resetActive(Fragment newActiveFragment) {
         fm.beginTransaction().hide(active).show(newActiveFragment).commit();
         active = newActiveFragment;
+    }
+
+    @Override
+    public void onDayEditModeOpened() {
+        isEditModeOpened = true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (isEditModeOpened) {
+            isEditModeOpened = false;
+            fm.beginTransaction().show(active).commit();
+        }
     }
 }
