@@ -57,6 +57,10 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
+        searchView.setOnCloseListener(() -> {
+            tvNothingToShow.setVisibility(View.GONE);
+            return false;
+        });
 
         model.getSearchData().observe(this, days -> {
             progressBar.setVisibility(View.GONE);
