@@ -1,6 +1,7 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_
 public class DayFragment extends DayParentFragment {
     OnDayEditModeListener onDayEditModeListener;
     TextView tvDescription;
+    ImageView ivDay;
     DayViewModel model;
     LiveData<Day> dayLiveData;
 
@@ -82,6 +85,7 @@ public class DayFragment extends DayParentFragment {
         tvDayOfTheWeek.setText(getDayOfWeekName(dayOfWeek));
 
         tvDescription = view.findViewById(R.id.tv_desctription);
+        ivDay = view.findViewById(R.id.iv_day_picture);
 
         model = ViewModelProviders.of(getActivity()).get(DayViewModel.class);
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
@@ -94,6 +98,9 @@ public class DayFragment extends DayParentFragment {
                 tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
+                if(day.getImage() != null){
+                    ivDay.setImageBitmap(BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length));
+                }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
             }
