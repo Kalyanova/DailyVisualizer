@@ -15,4 +15,6 @@
   <dimen name="standard_130">135dp</dimen>
   <dimen name="standard_185">195dp</dimen>
   <dimen name="standard_240">255dp</dimen>
+
+  <dimen name="edit_mode_inner_padding">10dp</dimen>
 </resources>
