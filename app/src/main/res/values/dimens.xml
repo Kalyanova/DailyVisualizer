@@ -9,7 +9,10 @@
   <dimen name="header_padding">8dp</dimen>
   <dimen name="md_keylines">16dp</dimen>
   <dimen name="bottom_navigation_bar_height">56dp</dimen>
+  <dimen name="bottom_navigation_bar_elevation">8dp</dimen>
 
+  <dimen name="fab_bottom_margin">64dp</dimen>
+  <dimen name="fab_little_margin">24dp</dimen>
   <dimen name="fab_large_diameter">70dp</dimen>
   <dimen name="standard_75">75dp</dimen>
   <dimen name="standard_130">135dp</dimen>
