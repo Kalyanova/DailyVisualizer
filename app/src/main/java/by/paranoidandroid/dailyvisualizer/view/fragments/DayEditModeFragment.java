@@ -1,15 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
-import static android.app.Activity.RESULT_OK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
-
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -20,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -34,6 +25,16 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -43,13 +44,18 @@ import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
 public class DayEditModeFragment extends DayParentFragment {
 
@@ -142,6 +148,11 @@ public class DayEditModeFragment extends DayParentFragment {
                 }
             }
         );
+
+        fabAddImage.setOnClickListener(v -> {
+            fabAddImage.setClickable(false); // TODO: change it - with changing database schema.
+            performImageFileSearch();
+        });
 
         // TODO: implement fab clicks
         fabAddLocation.setOnClickListener(v -> {
@@ -237,21 +248,27 @@ public class DayEditModeFragment extends DayParentFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_SHAPSHOT && resultCode == RESULT_OK) {
-            Bitmap myBitmap = BitmapManager
-                .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
-            ImageView iv = new ImageView(getActivity());
-            iv.setPadding(0,
-                getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding),
-                0, getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding));
-            iv.setLayoutParams(
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            iv.setScaleType(ScaleType.CENTER_CROP);
-            container.addView(iv, container.getChildCount() - 1);
-            iv.setImageBitmap(myBitmap);
-            img = iv;
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_SHAPSHOT) {
+                Bitmap myBitmap = BitmapManager
+                        .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
+                ImageView iv = createImageView();
+                iv.setImageBitmap(myBitmap);
+                img = iv;
 
-            fabAddSnapshot.setClickable(false);
+                fabAddSnapshot.setClickable(false);
+            } else if (requestCode == REQUEST_OPEN_IMAGE) {
+                // The document selected by the user won't be returned in the intent.
+                // Instead, a URI to that document will be contained in the return intent
+                // provided to this method as a parameter.
+                // Pull that URI using resultData.getData().
+                if (data != null) {
+                    Uri uri = data.getData();
+                    ImageView iv = createImageView();
+                    iv.setImageURI(uri);
+                    img = iv;
+                }
+            }
         }
     }
 
@@ -288,5 +305,44 @@ public class DayEditModeFragment extends DayParentFragment {
 
         fabAddLocation.setClickable(false);
         container.addView(button, container.getChildCount() - 1);
+    }
+
+    private void performImageFileSearch() {
+        Intent intent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+            // Filter to only show results that can be "opened", such as a
+            // file (as opposed to a list of contacts or timezones)
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            // Filter to show only images, using the image MIME data type.
+            intent.setType(IMAGE_MIME_TYPE);
+        } else {
+            intent = new Intent(Intent.ACTION_PICK);
+        }
+        intent.setType(IMAGE_MIME_TYPE);
+        openActivityForResult(intent, REQUEST_OPEN_IMAGE);
+    }
+
+    private ImageView createImageView() {
+        ImageView iv = new ImageView(getActivity());
+        iv.setPadding(0,
+                getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding),
+                0, getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding));
+        iv.setLayoutParams(
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        iv.setScaleType(ScaleType.CENTER_CROP);
+        container.addView(iv, container.getChildCount() - 1);
+        return iv;
+    }
+
+    private void openActivityForResult(Intent intent, int requestCode) {
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            startActivityForResult(intent, requestCode);
+        } else {
+            Toast.makeText(getContext(), R.string.no_appropriate_apps, Toast.LENGTH_SHORT).show();
+        }
     }
 }

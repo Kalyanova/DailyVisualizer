@@ -1,12 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
-
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -20,13 +13,22 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
-import java.util.Locale;
+
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 
 public class DayFragment extends DayParentFragment {
     OnDayEditModeListener onDayEditModeListener;
@@ -35,6 +37,7 @@ public class DayFragment extends DayParentFragment {
     DayViewModel model;
     LiveData<Day> dayLiveData;
     Button btShowLocation;
+    Day selectedDay;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -95,6 +98,7 @@ public class DayFragment extends DayParentFragment {
             // Update the UI.
             // TODO: change it, etrieve other stuff from database
             if (day != null) {
+                selectedDay = day;
                 tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
@@ -144,8 +148,15 @@ public class DayFragment extends DayParentFragment {
                         .commit();
                 return true;
             case R.id.action_delete:
-                Toast.makeText(getActivity(), "Delete click", Toast.LENGTH_SHORT).show();
                 // TODO: delete day from database
+                if (selectedDay != null) {
+                    model.deleteDay(selectedDay);
+                    selectedDay = null;
+                    Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "Nothing to delete!", Toast.LENGTH_SHORT).show();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
