@@ -1,5 +1,12 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
+
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -9,26 +16,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Locale;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
-
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
+import java.util.Locale;
 
 public class DayFragment extends DayParentFragment {
     OnDayEditModeListener onDayEditModeListener;
@@ -36,7 +33,7 @@ public class DayFragment extends DayParentFragment {
     ImageView ivDay;
     DayViewModel model;
     LiveData<Day> dayLiveData;
-    Button btShowLocation;
+    ImageView btShowLocation;
     Day selectedDay;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
@@ -108,12 +105,12 @@ public class DayFragment extends DayParentFragment {
                     ivDay.setImageDrawable(null);
                 }
                 if(day.getLatitude() != null){
-                    btShowLocation.setVisibility(View.VISIBLE);
+                    ((View)btShowLocation.getParent()).setVisibility(View.VISIBLE);
                     btShowLocation.setOnClickListener(v->{
                       LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
                 } else {
-                    btShowLocation.setVisibility(View.GONE);
+                   btShowLocation.setVisibility(View.GONE);
                 }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
