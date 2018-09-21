@@ -116,6 +116,7 @@ public class DayFragment extends DayParentFragment {
                 btShowLocation.setVisibility(View.GONE);
             }
         });
+        hideFABs();
         return view;
     }
 
@@ -186,5 +187,14 @@ public class DayFragment extends DayParentFragment {
 
     public interface OnDayEditModeListener {
         void onDayEditModeOpened();
+    }
+
+    private void hideFABs() {
+        findFABs();
+        fabAdd.setVisibility(View.GONE);
+        fabAddImage.setVisibility(View.GONE);
+        fabAddSnapshot.setVisibility(View.GONE);
+        fabAddMusic.setVisibility(View.GONE);
+        fabAddLocation.setVisibility(View.GONE);
     }
 }
