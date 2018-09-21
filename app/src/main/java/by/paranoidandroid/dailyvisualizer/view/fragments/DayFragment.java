@@ -1,27 +1,26 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import java.util.Locale;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
+import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
 
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
@@ -37,6 +36,8 @@ public class DayFragment extends DayParentFragment {
     ImageView ivDay;
     DayViewModel model;
     LiveData<Day> dayLiveData;
+    Button btShowLocation;
+    Day selectedDay;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -87,6 +88,7 @@ public class DayFragment extends DayParentFragment {
 
         tvDescription = view.findViewById(R.id.tv_desctription);
         ivDay = view.findViewById(R.id.iv_day_picture);
+        btShowLocation = view.findViewById(R.id.btn_show_location);
 
         model = ViewModelProviders.of(getActivity()).get(DayViewModel.class);
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
@@ -96,6 +98,7 @@ public class DayFragment extends DayParentFragment {
             // Update the UI.
             // TODO: change it, etrieve other stuff from database
             if (day != null) {
+                selectedDay = day;
                 tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
@@ -104,9 +107,18 @@ public class DayFragment extends DayParentFragment {
                 } else {
                     ivDay.setImageDrawable(null);
                 }
+                if(day.getLatitude() != null){
+                    btShowLocation.setVisibility(View.VISIBLE);
+                    btShowLocation.setOnClickListener(v->{
+                      LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
+                    });
+                } else {
+                    btShowLocation.setVisibility(View.GONE);
+                }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
                 ivDay.setImageDrawable(null);
+                btShowLocation.setVisibility(View.GONE);
             }
         });
         return view;
@@ -136,8 +148,15 @@ public class DayFragment extends DayParentFragment {
                         .commit();
                 return true;
             case R.id.action_delete:
-                Toast.makeText(getActivity(), "Delete click", Toast.LENGTH_SHORT).show();
                 // TODO: delete day from database
+                if (selectedDay != null) {
+                    model.deleteDay(selectedDay);
+                    selectedDay = null;
+                    Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "Nothing to delete!", Toast.LENGTH_SHORT).show();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

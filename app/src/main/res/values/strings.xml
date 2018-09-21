@@ -24,8 +24,12 @@
     <item quantity="other">%d weeks ago</item>
   </plurals>
   <plurals name="timeline_days">
-    <item quantity="zero">today</item>
     <item quantity="one">1 day ago</item>
-    <item quantity="other">%d years ago</item>
+    <item quantity="other">%d days ago</item>
   </plurals>
+  <string name="today">today</string>
+  <string name="install_maps">Please, install google maps!</string>
+  <string name="show_location">Show location </string>
+  <string name="nothing_to_show">Sorry. No content for you!</string>
+  <string name="no_appropriate_apps">Sorry, you haven\'t installed apps to perform this action!</string>
 </resources>

@@ -16,6 +16,9 @@ public interface DayDao {
   @Query("SELECT * FROM DAY WHERE date LIKE :date")
   LiveData<Day> getDay(String date);
 
+  @Query("SELECT * FROM DAY WHERE title LIKE :title ORDER BY date DESC")
+  LiveData<List<Day>> getDays(String title);
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(Day... days);
 

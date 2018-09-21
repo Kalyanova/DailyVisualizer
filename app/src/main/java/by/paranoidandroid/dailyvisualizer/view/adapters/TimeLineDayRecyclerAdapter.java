@@ -1,8 +1,11 @@
 package by.paranoidandroid.dailyvisualizer.view.adapters;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,12 +52,14 @@ public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDay
 
   static class ViewHolder extends  RecyclerView.ViewHolder{
     private TextView tvTitle, tvDate, tvDatePreview;
+    private ImageView ivPicture;
 
     ViewHolder(View view) {
       super(view);
       tvTitle = view.findViewById(R.id.timeline_item_text_view_title);
       tvDatePreview = view.findViewById(R.id.timeline_item_text_view_date_preview);
       tvDate = view.findViewById(R.id.timeline_item_text_view_date);
+      ivPicture = view.findViewById(R.id.timeline_item_image_view_day_picture);
     }
 
     private String getPreviewDate(LocalDate date){
@@ -67,8 +72,10 @@ public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDay
         return tvDate.getResources().getQuantityString(R.plurals.timeline_month, period.getMonths(), period.getMonths());
       } else if(period.getWeeks() != 0){
         return tvDate.getResources().getQuantityString(R.plurals.timeline_week, period.getWeeks(), period.getWeeks());
-      } else{
+      } else if(period.getDays() != 0){
         return tvDate.getResources().getQuantityString(R.plurals.timeline_days, period.getDays(), period.getDays());
+      } else {
+        return tvDate.getContext().getResources().getString(R.string.today);
       }
     }
 
@@ -82,6 +89,10 @@ public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDay
 
       tvTitle.setText(day.getTitle());
 
+      if(day.getImage() != null){
+        Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
+        ivPicture.setImageBitmap(bitmap);
+      }
       //TODO: implement setting picture
     }
   }
