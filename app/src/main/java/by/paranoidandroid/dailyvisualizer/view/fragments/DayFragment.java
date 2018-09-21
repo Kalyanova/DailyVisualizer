@@ -113,12 +113,12 @@ public class DayFragment extends DayParentFragment {
                       LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
                 } else {
-                    btShowLocation.setVisibility(View.INVISIBLE);
+                    btShowLocation.setVisibility(View.GONE);
                 }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
                 ivDay.setImageDrawable(null);
-                btShowLocation.setVisibility(View.INVISIBLE);
+                btShowLocation.setVisibility(View.GONE);
             }
         });
         return view;

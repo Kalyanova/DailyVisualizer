@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -150,6 +149,8 @@ public class DayEditModeFragment extends DayParentFragment {
         );
 
         fabAddImage.setOnClickListener(v -> {
+            closeFABMenu();
+            fabAddSnapshot.setClickable(false);
             fabAddImage.setClickable(false); // TODO: change it - with changing database schema.
             performImageFileSearch();
         });
@@ -167,6 +168,7 @@ public class DayEditModeFragment extends DayParentFragment {
 
         fabAddSnapshot.setOnClickListener(v -> {
             closeFABMenu();
+            fabAddImage.setClickable(false);
             if (!checkPermission(permission.WRITE_EXTERNAL_STORAGE,
                 permission.READ_EXTERNAL_STORAGE)) {
                 requestPermissions(new String[]{permission.WRITE_EXTERNAL_STORAGE,
@@ -216,7 +218,6 @@ public class DayEditModeFragment extends DayParentFragment {
     }
 
     private void addSnapshot() {
-        Log.d("CHECK", "snapshot");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             File photoFile = null;
@@ -255,8 +256,6 @@ public class DayEditModeFragment extends DayParentFragment {
                 ImageView iv = createImageView();
                 iv.setImageBitmap(myBitmap);
                 img = iv;
-
-                fabAddSnapshot.setClickable(false);
             } else if (requestCode == REQUEST_OPEN_IMAGE) {
                 // The document selected by the user won't be returned in the intent.
                 // Instead, a URI to that document will be contained in the return intent
@@ -292,6 +291,7 @@ public class DayEditModeFragment extends DayParentFragment {
     //permission already checked
     @SuppressLint("MissingPermission")
     private void addLocation() {
+        fabAddLocation.setClickable(false);
         LocationManager locationManager = (LocationManager) getActivity()
             .getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = LocationManager.NETWORK_PROVIDER;
@@ -302,8 +302,6 @@ public class DayEditModeFragment extends DayParentFragment {
             LocationMapManager.showLocation(getActivity(),
                 String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
         });
-
-        fabAddLocation.setClickable(false);
         container.addView(button, container.getChildCount() - 1);
     }
 
