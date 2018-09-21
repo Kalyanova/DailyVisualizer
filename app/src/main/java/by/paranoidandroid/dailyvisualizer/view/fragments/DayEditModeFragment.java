@@ -319,8 +319,6 @@ public class DayEditModeFragment extends DayParentFragment {
 
             // Filter to show only images, using the image MIME data type.
             intent.setType(IMAGE_MIME_TYPE);
-
-            openActivityForResult(intent, REQUEST_OPEN_IMAGE);
         } else {
             intent = new Intent(Intent.ACTION_PICK);
         }
