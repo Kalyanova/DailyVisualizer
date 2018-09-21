@@ -116,6 +116,7 @@ public class DayFragment extends DayParentFragment {
                 btShowLocation.setVisibility(View.GONE);
             }
         });
+        hideFABs();
         return view;
     }
 
@@ -186,5 +187,22 @@ public class DayFragment extends DayParentFragment {
 
     public interface OnDayEditModeListener {
         void onDayEditModeOpened();
+    }
+
+    private void hideFABs() {
+        findFABs();
+        fabAdd.setVisibility(View.GONE);
+        fabAddImage.setVisibility(View.GONE);
+        fabAddSnapshot.setVisibility(View.GONE);
+        fabAddMusic.setVisibility(View.GONE);
+        fabAddLocation.setVisibility(View.GONE);
+    }
+
+    protected void findFABs() {
+        fabAdd = getActivity().findViewById(R.id.fab_add);
+        fabAddImage = getActivity().findViewById(R.id.fab_add_image);
+        fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
+        fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
+        fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
     }
 }
