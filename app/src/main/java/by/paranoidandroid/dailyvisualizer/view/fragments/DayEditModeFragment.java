@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -247,11 +248,11 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddImage.setOnClickListener(v -> {
             closeFABMenu();
             fabAddSnapshot.setClickable(false);
-            fabAddImage.setClickable(false); // TODO: change it - with changing database schema.
+            fabAddImage.setClickable(false);
             performImageFileSearch();
         });
 
-        // TODO: implement fab clicks
+
         fabAddLocation.setOnClickListener(v -> {
             if (!checkPermission(permission.ACCESS_FINE_LOCATION)) {
                 requestPermissions(new String[]{permission.ACCESS_FINE_LOCATION},
@@ -365,21 +366,39 @@ public class DayEditModeFragment extends DayParentFragment {
         }
     }
 
+
     private void showFABMenu() {
+        int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = true;
-        fabAddLocation.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
-        fabAddMusic.animate().translationY(-getResources().getDimension(R.dimen.standard_130));
-        fabAddSnapshot.animate().translationY(-getResources().getDimension(R.dimen.standard_185));
-        fabAddImage.animate().translationY(-getResources().getDimension(R.dimen.standard_240));
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            fabAddLocation.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
+            fabAddMusic.animate().translationY(-getResources().getDimension(R.dimen.standard_130));
+            fabAddSnapshot.animate().translationY(-getResources().getDimension(R.dimen.standard_185));
+            fabAddImage.animate().translationY(-getResources().getDimension(R.dimen.standard_240));
+        } else {
+            fabAddLocation.animate().translationX(-getResources().getDimension(R.dimen.standard_75));
+            fabAddMusic.animate().translationX(-getResources().getDimension(R.dimen.standard_130));
+            fabAddSnapshot.animate().translationX(-getResources().getDimension(R.dimen.standard_185));
+            fabAddImage.animate().translationX(-getResources().getDimension(R.dimen.standard_240));
+        }
     }
 
     private void closeFABMenu() {
+        int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = false;
-        fabAdd.animate().translationY(0);
-        fabAddImage.animate().translationY(0);
-        fabAddSnapshot.animate().translationY(0);
-        fabAddMusic.animate().translationY(0);
-        fabAddLocation.animate().translationY(0);
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            fabAdd.animate().translationY(0);
+            fabAddImage.animate().translationY(0);
+            fabAddSnapshot.animate().translationY(0);
+            fabAddMusic.animate().translationY(0);
+            fabAddLocation.animate().translationY(0);
+        } else {
+            fabAdd.animate().translationX(0);
+            fabAddImage.animate().translationX(0);
+            fabAddSnapshot.animate().translationX(0);
+            fabAddMusic.animate().translationX(0);
+            fabAddLocation.animate().translationX(0);
+        }
     }
 
     private void showLocationButton(){
