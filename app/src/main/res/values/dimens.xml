@@ -17,4 +17,6 @@
   <dimen name="standard_240">255dp</dimen>
 
   <dimen name="edit_mode_inner_padding">10dp</dimen>
+  <dimen name="map_height">170dp</dimen>
+  <dimen name="map_padding">4dp</dimen>
 </resources>

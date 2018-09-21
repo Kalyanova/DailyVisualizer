@@ -51,11 +51,18 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"/>
 
-            <Button
+
+            <ImageView
               android:id="@+id/btn_show_location"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:text="@string/show_location"/>
+              android:layout_height="@dimen/map_height"
+              android:padding="@dimen/map_padding"
+              android:cropToPadding="true"
+              android:scaleType="centerCrop"
+              android:background="@drawable/border_background"
+              android:src="@drawable/map"
+              android:clickable="true"
+              android:focusable="true"/>
 
         </LinearLayout>
 

@@ -27,15 +27,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -46,7 +44,6 @@ import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
-import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.ByteArrayOutputStream;
@@ -65,6 +62,19 @@ public class DayEditModeFragment extends DayParentFragment {
     private Location location;
     private ProgressBar progressBar;
     private String mCurrentPhotoPath;
+
+    private OnClickListener deleteImageLisnener = view -> {
+        img = null;
+        fabAddImage.setClickable(true);
+        fabAddSnapshot.setClickable(true);
+        ((ViewGroup) view.getParent().getParent()).removeView((ViewGroup) view.getParent());
+    };
+
+    private OnClickListener deleteMapListener = view -> {
+        location = null;
+        fabAddLocation.setClickable(true);
+        ((ViewGroup) view.getParent().getParent()).removeView((ViewGroup) view.getParent());
+    };
 
     //JUST FOR TESTING
     //Adding latest picture in database (if not null)
@@ -85,7 +95,6 @@ public class DayEditModeFragment extends DayParentFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("CRATED", "CREATED");
         setHasOptionsMenu(false);
         viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
     }
@@ -158,7 +167,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 if(day.getImage() != null){
                     fabAddSnapshot.setClickable(false);
                     fabAddImage.setClickable(false);
-                    img = createImageView();
+                    img = createImageView(deleteImageLisnener);
                     Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
                     img.setImageBitmap(bitmap);
                 }
@@ -287,7 +296,7 @@ public class DayEditModeFragment extends DayParentFragment {
             if (requestCode == REQUEST_IMAGE_SHAPSHOT) {
                 Bitmap myBitmap = BitmapManager
                         .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
-                ImageView iv = createImageView();
+                ImageView iv = createImageView(deleteImageLisnener);
                 iv.setImageBitmap(myBitmap);
                 img = iv;
             } else if (requestCode == REQUEST_OPEN_IMAGE) {
@@ -297,7 +306,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 // Pull that URI using resultData.getData().
                 if (data != null) {
                     Uri uri = data.getData();
-                    ImageView iv = createImageView();
+                    ImageView iv = createImageView(deleteImageLisnener);
                     iv.setImageURI(uri);
                     img = iv;
                 }
@@ -323,14 +332,13 @@ public class DayEditModeFragment extends DayParentFragment {
     }
 
     private void showLocationButton(){
+        ImageView iv = createImageView(deleteMapListener);
+        iv.getLayoutParams().height = ((int)getResources().getDimension(R.dimen.map_height));
+        iv.setImageResource(R.drawable.map);
+
+        int padding = getResources().getDimensionPixelSize(R.dimen.map_padding);
+        ((View)iv.getParent()).setPadding(padding, padding, padding, padding);
         fabAddLocation.setClickable(false);
-        Button button = new Button(getActivity());
-        button.setText(R.string.show_location);
-        button.setOnClickListener(v->{
-            LocationMapManager.showLocation(getActivity(),
-                String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-        });
-        container.addView(button, container.getChildCount() - 1);
     }
 
     //permission already checked
@@ -362,15 +370,12 @@ public class DayEditModeFragment extends DayParentFragment {
         openActivityForResult(intent, REQUEST_OPEN_IMAGE);
     }
 
-    private ImageView createImageView() {
-        ImageView iv = new ImageView(getActivity());
-        iv.setPadding(0,
-                getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding),
-                0, getResources().getDimensionPixelOffset(R.dimen.edit_mode_inner_padding));
-        iv.setLayoutParams(
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        iv.setScaleType(ScaleType.CENTER_CROP);
-        container.addView(iv, container.getChildCount() - 1);
+    private ImageView createImageView(OnClickListener listenerDelete) {
+        LayoutInflater li = LayoutInflater.from(getActivity());
+        View view = li.inflate(R.layout.image_view_delete_button, null);
+        container.addView(view, container.getChildCount()-1);
+        ImageView iv  = view.findViewById(R.id.iv_picture);
+        view.findViewById(R.id.ib_delete_image).setOnClickListener(listenerDelete);
         return iv;
     }
 
