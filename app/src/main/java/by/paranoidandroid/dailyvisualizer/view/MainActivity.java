@@ -1,6 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view;
 
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +20,6 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.Calendar;
-
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener,
         DayFragment.OnDayEditModeListener {

@@ -1,6 +1,7 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +23,7 @@ import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
+import by.paranoidandroid.dailyvisualizer.view.utils.MusicService;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
 
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
@@ -29,6 +32,8 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONT
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_MONTH_ID;
 
 public class DayFragment extends DayParentFragment {
     OnDayEditModeListener onDayEditModeListener;
@@ -38,6 +43,8 @@ public class DayFragment extends DayParentFragment {
     LiveData<Day> dayLiveData;
     Button btShowLocation;
     Day selectedDay;
+    ImageButton muteButton;
+    Boolean isMuted = false;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -81,6 +88,7 @@ public class DayFragment extends DayParentFragment {
         month = bundle.getInt(ARGS_MONTH);
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
         dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
+        muteButton = view.findViewById(R.id.mute_music_button);
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
@@ -110,7 +118,7 @@ public class DayFragment extends DayParentFragment {
                 if(day.getLatitude() != null){
                     btShowLocation.setVisibility(View.VISIBLE);
                     btShowLocation.setOnClickListener(v->{
-                      LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
+                        LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
                 } else {
                     btShowLocation.setVisibility(View.GONE);
@@ -121,6 +129,22 @@ public class DayFragment extends DayParentFragment {
                 btShowLocation.setVisibility(View.GONE);
             }
         });
+
+        muteButton.setOnClickListener(view1 -> {
+            if (!isMuted) {
+                isMuted = true;
+                muteButton.setImageResource(R.drawable.ic_volume_off);
+                stopMusicService();
+            } else {
+                isMuted = false;
+                muteButton.setImageResource(R.drawable.ic_volume_on);
+                startMusicService();
+            }
+        });
+
+        if (!isMuted)
+            startMusicService();
+
         return view;
     }
 
@@ -191,5 +215,35 @@ public class DayFragment extends DayParentFragment {
 
     public interface OnDayEditModeListener {
         void onDayEditModeOpened();
+    }
+
+    private void stopMusicService() {
+        Intent serviceIntent = new Intent(getContext(), MusicService.class);
+        getActivity().stopService(serviceIntent);
+    }
+
+    private void startMusicService() {
+        Intent serviceIntent = new Intent(getContext(), MusicService.class);
+        serviceIntent.putExtra(SONG_DATE_NOTIFICATION_ID,
+                getDayTitle(year, month, dayOfMonth));
+        serviceIntent.putExtra(SONG_MONTH_ID, month);
+        getActivity().startService(serviceIntent);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+
+        if (hidden) {
+            stopMusicService();
+        } else if (!isMuted){
+            startMusicService();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        stopMusicService();
+        super.onStop();
     }
 }
