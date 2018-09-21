@@ -93,7 +93,6 @@ public class TimeLineDayRecyclerAdapter extends RecyclerView.Adapter<TimeLineDay
         Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
         ivPicture.setImageBitmap(bitmap);
       }
-      //TODO: implement setting picture
     }
   }
 }

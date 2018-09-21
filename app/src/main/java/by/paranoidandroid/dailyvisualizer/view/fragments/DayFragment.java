@@ -70,7 +70,6 @@ public class DayFragment extends DayParentFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_day, container, false);
-
         Bundle bundle = (savedInstanceState == null)
                 ? getArguments()
                 : savedInstanceState;
@@ -95,8 +94,7 @@ public class DayFragment extends DayParentFragment {
             // Update the UI.
             // TODO: change it, etrieve other stuff from database
             if (day != null) {
-                selectedDay = day;
-                tvDescription.setText(day.getDate() + "\n"
+                selectedDay = day;                tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
                 if(day.getImage() != null){
@@ -105,7 +103,7 @@ public class DayFragment extends DayParentFragment {
                     ivDay.setImageDrawable(null);
                 }
                 if(day.getLatitude() != null){
-                    ((View)btShowLocation.getParent()).setVisibility(View.VISIBLE);
+                    btShowLocation.setVisibility(View.VISIBLE);
                     btShowLocation.setOnClickListener(v->{
                       LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });

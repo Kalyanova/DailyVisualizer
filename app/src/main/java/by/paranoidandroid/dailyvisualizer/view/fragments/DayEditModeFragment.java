@@ -1,9 +1,14 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
@@ -17,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -56,6 +62,8 @@ import java.util.Locale;
 public class DayEditModeFragment extends DayParentFragment {
 
     private boolean isFABOpened;
+    private Button btnSave;
+    private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     private EditDayViewModel viewModel;
     private LinearLayout container;
@@ -96,6 +104,7 @@ public class DayEditModeFragment extends DayParentFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(false);
+        setRetainInstance(true);
         viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
     }
 
@@ -107,6 +116,7 @@ public class DayEditModeFragment extends DayParentFragment {
         Bundle bundle = (savedInstanceState == null)
             ? getArguments()
             : savedInstanceState;
+
         year = bundle.getInt(ARGS_YEAR);
         month = bundle.getInt(ARGS_MONTH);
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
@@ -117,10 +127,10 @@ public class DayEditModeFragment extends DayParentFragment {
         tvDayOfTheWeek.setText(getDayOfWeekName(dayOfWeek));
 
         this.container = view.findViewById(R.id.ll_container);
-        EditText etTitle = view.findViewById(R.id.et_title);
-        EditText etDescription = view.findViewById(R.id.et_description);
+        etTitle = view.findViewById(R.id.et_title);
+        etDescription = view.findViewById(R.id.et_description);
 
-        Button btnSave = view.findViewById(R.id.btn_save);
+        btnSave = view.findViewById(R.id.btn_save);
         btnSave.setOnClickListener(v -> {
             // TODO: change it - add saving other stuff (image, location and etc.) to database
             String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
@@ -129,10 +139,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 etDescription.getText().toString().trim());
             if (img != null) {
                 Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                day.setImage(byteArray);
+                day.setImage(getByteArray(bitmap));
             }
             if(location != null){
                 day.setLongitude(String.valueOf(location.getLongitude()));
@@ -148,34 +155,79 @@ public class DayEditModeFragment extends DayParentFragment {
         progressBar = view.findViewById(R.id.pb_detail_mode);
 
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
-        viewModel.setFilter(date);
 
-        viewModel.getSearchBy().observe(this, day -> {
-            progressBar.setVisibility(View.GONE);
-            etDescription.setVisibility(View.VISIBLE);
-            etTitle.setVisibility(View.VISIBLE);
-            btnSave.setVisibility(View.VISIBLE);
-            if(day != null){
-                etTitle.setText(day.getTitle());
-                etDescription.setText(day.getDescription());
-                if(day.getLatitude() != null){
-                    location = new Location("");
-                    location.setLatitude(Double.valueOf(day.getLatitude()));
-                    location.setLongitude(Double.valueOf(day.getLongitude()));
-                    showLocationButton();
-                }
-                if(day.getImage() != null){
-                    fabAddSnapshot.setClickable(false);
-                    fabAddImage.setClickable(false);
-                    img = createImageView(deleteImageLisnener);
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
-                    img.setImageBitmap(bitmap);
-                }
+        if(bundle.getString(ARGS_TITLE) != null){
+            changeUIVisibility();
+            etTitle.setText(bundle.getString(ARGS_TITLE));
+            etDescription.setText(bundle.getString(ARGS_DESCRIPTION));
+            if (bundle.getByteArray(ARGS_IMAGE) != null){
+                fabAddSnapshot.setClickable(false);
+                fabAddImage.setClickable(false);
+                byte arr [] = bundle.getByteArray(ARGS_IMAGE);
+                img = createImageView(deleteImageLisnener);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(arr, 0, arr.length);
+                img.setImageBitmap(bitmap);
             }
-        });
+            if(bundle.getParcelable(ARGS_LOCATION) != null){
+                location = bundle.getParcelable(ARGS_LOCATION);
+                showLocationButton();
+            }
+        } else {
+            viewModel.setFilter(date);
+            viewModel.getSearchBy().observe(this, day -> {
+                changeUIVisibility();
+                if(day != null){
+                    etTitle.setText(day.getTitle());
+                    etDescription.setText(day.getDescription());
+                    if(day.getLatitude() != null){
+                        location = new Location("");
+                        location.setLatitude(Double.valueOf(day.getLatitude()));
+                        location.setLongitude(Double.valueOf(day.getLongitude()));
+                        showLocationButton();
+                    }
+                    if(day.getImage() != null){
+                        fabAddSnapshot.setClickable(false);
+                        fabAddImage.setClickable(false);
+                        img = createImageView(deleteImageLisnener);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
+                        img.setImageBitmap(bitmap);
+                    }
+                }
+            });
+        }
+
         return view;
     }
 
+    private void changeUIVisibility(){
+        progressBar.setVisibility(GONE);
+        etDescription.setVisibility(View.VISIBLE);
+        etTitle.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.VISIBLE);
+    }
+
+    private byte[] getByteArray(Bitmap bitmap){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(ARGS_YEAR, year);
+        outState.putInt(ARGS_MONTH, month);
+        outState.putInt(ARGS_DAY_OF_MONTH, dayOfMonth);
+        outState.putInt(ARGS_DAY_OF_WEEK, dayOfWeek);
+
+        if(img != null){
+            outState.putByteArray(ARGS_IMAGE,
+                getByteArray(((BitmapDrawable) img.getDrawable()).getBitmap()));
+        }
+        outState.putString(ARGS_TITLE, etTitle.getText().toString());
+        outState.putString(ARGS_DESCRIPTION, etDescription.getText().toString());
+        outState.putParcelable(ARGS_LOCATION, location);
+        super.onSaveInstanceState(outState);
+    }
 
     private void setupFabs(View view){
         fabAdd = view.findViewById(R.id.fab_add);
@@ -196,11 +248,11 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddImage.setOnClickListener(v -> {
             closeFABMenu();
             fabAddSnapshot.setClickable(false);
-            fabAddImage.setClickable(false); // TODO: change it - with changing database schema.
+            fabAddImage.setClickable(false);
             performImageFileSearch();
         });
 
-        // TODO: implement fab clicks
+
         fabAddLocation.setOnClickListener(v -> {
             if (!checkPermission(permission.ACCESS_FINE_LOCATION)) {
                 requestPermissions(new String[]{permission.ACCESS_FINE_LOCATION},
@@ -314,21 +366,39 @@ public class DayEditModeFragment extends DayParentFragment {
         }
     }
 
+
     private void showFABMenu() {
+        int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = true;
-        fabAddLocation.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
-        fabAddMusic.animate().translationY(-getResources().getDimension(R.dimen.standard_130));
-        fabAddSnapshot.animate().translationY(-getResources().getDimension(R.dimen.standard_185));
-        fabAddImage.animate().translationY(-getResources().getDimension(R.dimen.standard_240));
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            fabAddLocation.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
+            fabAddMusic.animate().translationY(-getResources().getDimension(R.dimen.standard_130));
+            fabAddSnapshot.animate().translationY(-getResources().getDimension(R.dimen.standard_185));
+            fabAddImage.animate().translationY(-getResources().getDimension(R.dimen.standard_240));
+        } else {
+            fabAddLocation.animate().translationX(-getResources().getDimension(R.dimen.standard_75));
+            fabAddMusic.animate().translationX(-getResources().getDimension(R.dimen.standard_130));
+            fabAddSnapshot.animate().translationX(-getResources().getDimension(R.dimen.standard_185));
+            fabAddImage.animate().translationX(-getResources().getDimension(R.dimen.standard_240));
+        }
     }
 
     private void closeFABMenu() {
+        int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = false;
-        fabAdd.animate().translationY(0);
-        fabAddImage.animate().translationY(0);
-        fabAddSnapshot.animate().translationY(0);
-        fabAddMusic.animate().translationY(0);
-        fabAddLocation.animate().translationY(0);
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            fabAdd.animate().translationY(0);
+            fabAddImage.animate().translationY(0);
+            fabAddSnapshot.animate().translationY(0);
+            fabAddMusic.animate().translationY(0);
+            fabAddLocation.animate().translationY(0);
+        } else {
+            fabAdd.animate().translationX(0);
+            fabAddImage.animate().translationX(0);
+            fabAddSnapshot.animate().translationX(0);
+            fabAddMusic.animate().translationX(0);
+            fabAddLocation.animate().translationX(0);
+        }
     }
 
     private void showLocationButton(){

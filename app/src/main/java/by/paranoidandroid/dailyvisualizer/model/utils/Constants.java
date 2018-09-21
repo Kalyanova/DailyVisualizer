@@ -6,6 +6,10 @@ public interface Constants {
     String ARGS_DAY_OF_MONTH = "ARGS_DAY_OF_MONTH";
     String ARGS_DAY_OF_WEEK = "ARGS_DAY_OF_WEEK";
     String ARGS_ACTIVE_FRAGMENT = "ACTIVE_FRAGMENT";
+    String ARGS_IMAGE ="ARG_IMAGE";
+    String ARGS_TITLE ="ARG_TITLE";
+    String ARGS_DESCRIPTION = "ARGS_DESCRIPTION";
+    String ARGS_LOCATION = "ARGS_LOCATION";
     String FRAGMENT_TAG_1 = "1";
     String FRAGMENT_TAG_2 = "2";
     String FRAGMENT_TAG_3 = "3";
