@@ -37,12 +37,4 @@ public class DayParentFragment extends Fragment {
     protected String getDayTitle(int year, int month, int dayOfMonth) {
         return Month.of(month + 1).name() + " " + dayOfMonth + ", " + year;
     }
-
-    protected void findFABs() {
-        fabAdd = getActivity().findViewById(R.id.fab_add);
-        fabAddImage = getActivity().findViewById(R.id.fab_add_image);
-        fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
-        fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
-        fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
-    }
 }

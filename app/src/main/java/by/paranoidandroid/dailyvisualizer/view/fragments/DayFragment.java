@@ -197,4 +197,12 @@ public class DayFragment extends DayParentFragment {
         fabAddMusic.setVisibility(View.GONE);
         fabAddLocation.setVisibility(View.GONE);
     }
+
+    protected void findFABs() {
+        fabAdd = getActivity().findViewById(R.id.fab_add);
+        fabAddImage = getActivity().findViewById(R.id.fab_add_image);
+        fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
+        fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
+        fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
+    }
 }
