@@ -3,6 +3,7 @@ package by.paranoidandroid.dailyvisualizer.viewmodel;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import android.util.Log;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -22,7 +23,7 @@ public class DayViewModel extends AndroidViewModel {
         int INSERT = 0;
         int DELETE = 1;
     }
-    private AppDatabase appDatabase;
+    protected AppDatabase appDatabase;
     private LiveData<Day> searchByLiveData;
     private MutableLiveData<String> filterLiveData = new MutableLiveData<>();
 
@@ -36,15 +37,12 @@ public class DayViewModel extends AndroidViewModel {
     public LiveData<Day> getSearchBy() { return searchByLiveData; }
     public void setFilter(String filter) { filterLiveData.setValue(filter); }
 
-    public void insertDay(Day day) {
-        new DayAsyncTask(appDatabase, Task.INSERT).execute(day);
-    }
 
     public void deleteDay(Day day) {
         new DayAsyncTask(appDatabase, Task.DELETE).execute(day);
     }
 
-    private static class DayAsyncTask extends AsyncTask<Day, Void, Void> {
+    protected static class DayAsyncTask extends AsyncTask<Day, Void, Void> {
         private AppDatabase db;
         int task;
 

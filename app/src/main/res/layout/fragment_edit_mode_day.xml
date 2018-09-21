@@ -43,17 +43,25 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <ProgressBar
+              android:id="@+id/pb_detail_mode"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"/>
+
             <EditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_title" />
+                android:hint="@string/hint_title"
+                android:visibility="gone"/>
 
             <EditText
                 android:id="@+id/et_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_descr" />
+                android:hint="@string/hint_descr"
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/btn_save"
@@ -62,7 +70,8 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@color/colorPrimary"
                 android:text="@string/btn_save"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

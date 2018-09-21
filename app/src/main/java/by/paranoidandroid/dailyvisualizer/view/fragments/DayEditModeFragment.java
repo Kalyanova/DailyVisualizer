@@ -1,49 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
-import android.Manifest.permission;
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.lifecycle.ViewModelProviders;
-import by.paranoidandroid.dailyvisualizer.R;
-import by.paranoidandroid.dailyvisualizer.model.database.Day;
-import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
-import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
-import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
-
 import static android.app.Activity.RESULT_OK;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
@@ -56,13 +12,58 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_O
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
+import android.Manifest.permission;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
+import by.paranoidandroid.dailyvisualizer.R;
+import by.paranoidandroid.dailyvisualizer.model.database.Day;
+import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
+import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
+import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class DayEditModeFragment extends DayParentFragment {
 
     private boolean isFABOpened;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
-    private DayViewModel viewModel;
+    private EditDayViewModel viewModel;
     private LinearLayout container;
     private Location location;
+    private ProgressBar progressBar;
     private String mCurrentPhotoPath;
 
     //JUST FOR TESTING
@@ -84,8 +85,9 @@ public class DayEditModeFragment extends DayParentFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("CRATED", "CREATED");
         setHasOptionsMenu(false);
-        viewModel = ViewModelProviders.of(getActivity()).get(DayViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
     }
 
     @Override
@@ -133,6 +135,40 @@ public class DayEditModeFragment extends DayParentFragment {
                 .popBackStack();
         });
 
+        setupFabs(view);
+        progressBar = view.findViewById(R.id.pb_detail_mode);
+
+        String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
+        viewModel.setFilter(date);
+
+        viewModel.getSearchBy().observe(this, day -> {
+            progressBar.setVisibility(View.GONE);
+            etDescription.setVisibility(View.VISIBLE);
+            etTitle.setVisibility(View.VISIBLE);
+            btnSave.setVisibility(View.VISIBLE);
+            if(day != null){
+                etTitle.setText(day.getTitle());
+                etDescription.setText(day.getDescription());
+                if(day.getLatitude() != null){
+                    location = new Location("");
+                    location.setLatitude(Double.valueOf(day.getLatitude()));
+                    location.setLongitude(Double.valueOf(day.getLongitude()));
+                    showLocationButton();
+                }
+                if(day.getImage() != null){
+                    fabAddSnapshot.setClickable(false);
+                    fabAddImage.setClickable(false);
+                    img = createImageView();
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
+                    img.setImageBitmap(bitmap);
+                }
+            }
+        });
+        return view;
+    }
+
+
+    private void setupFabs(View view){
         fabAdd = view.findViewById(R.id.fab_add);
         fabAddImage = view.findViewById(R.id.fab_add_image);
         fabAddSnapshot = view.findViewById(R.id.fab_add_snapshot);
@@ -178,8 +214,6 @@ public class DayEditModeFragment extends DayParentFragment {
                 addSnapshot();
             }
         });
-
-        return view;
     }
 
     @Override
@@ -288,14 +322,8 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddLocation.animate().translationY(0);
     }
 
-    //permission already checked
-    @SuppressLint("MissingPermission")
-    private void addLocation() {
+    private void showLocationButton(){
         fabAddLocation.setClickable(false);
-        LocationManager locationManager = (LocationManager) getActivity()
-            .getSystemService(Context.LOCATION_SERVICE);
-        String locationProvider = LocationManager.NETWORK_PROVIDER;
-        location = locationManager.getLastKnownLocation(locationProvider);
         Button button = new Button(getActivity());
         button.setText(R.string.show_location);
         button.setOnClickListener(v->{
@@ -303,6 +331,16 @@ public class DayEditModeFragment extends DayParentFragment {
                 String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
         });
         container.addView(button, container.getChildCount() - 1);
+    }
+
+    //permission already checked
+    @SuppressLint("MissingPermission")
+    private void addLocation() {
+        LocationManager locationManager = (LocationManager) getActivity()
+            .getSystemService(Context.LOCATION_SERVICE);
+        String locationProvider = LocationManager.NETWORK_PROVIDER;
+        location = locationManager.getLastKnownLocation(locationProvider);
+        showLocationButton();
     }
 
     private void performImageFileSearch() {
