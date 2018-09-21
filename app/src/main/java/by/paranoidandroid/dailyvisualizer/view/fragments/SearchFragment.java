@@ -73,6 +73,7 @@ public class SearchFragment extends Fragment {
             }
             timeLineDayRecyclerAdapter.setDayList(days);
         });
+        model.setSearchQuery("");
         return view;
     }
 }

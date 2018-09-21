@@ -3,12 +3,14 @@ package by.paranoidandroid.dailyvisualizer.view;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.utils.CalendarDate;
 import by.paranoidandroid.dailyvisualizer.view.fragments.CalendarFragment;
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayEditModeFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SearchFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SettingsFragment;
@@ -78,22 +80,14 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
                 settingsFragment = fm.findFragmentByTag(FRAGMENT_TAG_4);
                 active = fm.findFragmentByTag(ACTIVE_FRAGMENT_TAG);
             }
-
-            // TODO: change it - retain edit mode window across configuration changes
-            // Now edit mode window is quietly closed if configuration change occurs
-            Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
-            if (editModeFragment != null) {
-                fm.beginTransaction().remove(editModeFragment).commit();
-                isEditModeOpened = false;
-            }
         }
 
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 item -> {
                     Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
                     if (editModeFragment != null) {
-                        fm.beginTransaction().remove(editModeFragment).commit();
-                        isEditModeOpened = false;
+                        fm.popBackStack();
+                        active = dayFragment;
                         // TODO: maybe show dialog asking do you really want exit edit mode without saving
                     }
                     switch (item.getItemId()) {
@@ -146,7 +140,11 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     }
 
     private void resetActive(Fragment newActiveFragment) {
-        fm.beginTransaction().hide(active).show(newActiveFragment).commit();
+        if(isEditModeOpened){
+            fm.beginTransaction().replace(R.id.main_container, newActiveFragment).commit();
+        } else {
+            fm.beginTransaction().hide(active).show(newActiveFragment).commit();
+        }
         active = newActiveFragment;
     }
 
