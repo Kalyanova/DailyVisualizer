@@ -43,6 +43,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -51,16 +61,20 @@ import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
 public class DayEditModeFragment extends DayParentFragment {
-
     private boolean isFABOpened;
     private Button btnSave;
     private EditText etTitle, etDescription;
@@ -151,7 +165,8 @@ public class DayEditModeFragment extends DayParentFragment {
                 .popBackStack();
         });
 
-        setupFabs(view);
+        showFABs();
+        setupFabs();
         progressBar = view.findViewById(R.id.pb_detail_mode);
 
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
@@ -229,12 +244,7 @@ public class DayEditModeFragment extends DayParentFragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void setupFabs(View view){
-        fabAdd = view.findViewById(R.id.fab_add);
-        fabAddImage = view.findViewById(R.id.fab_add_image);
-        fabAddSnapshot = view.findViewById(R.id.fab_add_snapshot);
-        fabAddMusic = view.findViewById(R.id.fab_add_music);
-        fabAddLocation = view.findViewById(R.id.fab_add_location);
+    private void setupFabs(){
         fabAdd.setOnClickListener(v -> {
                 Toast.makeText(getActivity(), "Add click", Toast.LENGTH_SHORT).show();
                 if (!isFABOpened) {
@@ -456,5 +466,22 @@ public class DayEditModeFragment extends DayParentFragment {
         } else {
             Toast.makeText(getContext(), R.string.no_appropriate_apps, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showFABs() {
+        findFABs();
+        fabAdd.setVisibility(View.VISIBLE);
+        fabAddImage.setVisibility(View.VISIBLE);
+        fabAddSnapshot.setVisibility(View.VISIBLE);
+        fabAddMusic.setVisibility(View.VISIBLE);
+        fabAddLocation.setVisibility(View.VISIBLE);
+    }
+
+    protected void findFABs() {
+        fabAdd = getActivity().findViewById(R.id.fab_add);
+        fabAddImage = getActivity().findViewById(R.id.fab_add_image);
+        fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
+        fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
+        fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
     }
 }

@@ -11,6 +11,63 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_snapshot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/md_keylines"
+        android:layout_marginEnd="@dimen/fab_little_margin"
+        android:layout_marginRight="@dimen/fab_little_margin"
+        android:src="@drawable/ic_add_snapshot"
+        android:visibility="gone"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/md_keylines"
+        android:layout_marginEnd="@dimen/fab_little_margin"
+        android:layout_marginRight="@dimen/fab_little_margin"
+        android:src="@drawable/ic_add_image"
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/md_keylines"
+        android:layout_marginEnd="@dimen/fab_little_margin"
+        android:layout_marginRight="@dimen/fab_little_margin"
+        android:src="@drawable/ic_library_music"
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/md_keylines"
+        android:layout_marginEnd="@dimen/fab_little_margin"
+        android:layout_marginRight="@dimen/fab_little_margin"
+        android:src="@drawable/ic_add_location"
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/md_keylines"
+        android:layout_marginEnd="@dimen/md_keylines"
+        android:layout_marginRight="@dimen/md_keylines"
+        android:src="@drawable/ic_add_circle"
+        app:fabCustomSize="@dimen/fab_large_diameter"
+        app:layout_anchorGravity="top|end"
+        android:visibility="gone" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
