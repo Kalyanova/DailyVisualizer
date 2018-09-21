@@ -8,6 +8,7 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESC
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MUSIC;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
@@ -33,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,10 +44,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
@@ -63,6 +69,7 @@ public class DayEditModeFragment extends DayParentFragment {
 
     private boolean isFABOpened;
     private Button btnSave;
+    private TextView tvMusic;
     private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     private EditDayViewModel viewModel;
@@ -70,6 +77,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private Location location;
     private ProgressBar progressBar;
     private String mCurrentPhotoPath;
+    private Integer music;
 
     private OnClickListener deleteImageLisnener = view -> {
         img = null;
@@ -121,6 +129,7 @@ public class DayEditModeFragment extends DayParentFragment {
         month = bundle.getInt(ARGS_MONTH);
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
         dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
+        tvMusic = view.findViewById(R.id.tv_music);
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
@@ -144,6 +153,9 @@ public class DayEditModeFragment extends DayParentFragment {
             if(location != null){
                 day.setLongitude(String.valueOf(location.getLongitude()));
                 day.setLatitude(String.valueOf(location.getLatitude()));
+            }
+            if(music != null){
+                day.setMusic(music);
             }
             viewModel.insertDay(day);
             // Here we try to close edit mode fragment like Activity with finish()
@@ -171,6 +183,9 @@ public class DayEditModeFragment extends DayParentFragment {
             if(bundle.getParcelable(ARGS_LOCATION) != null){
                 location = bundle.getParcelable(ARGS_LOCATION);
                 showLocationButton();
+            }
+            if( bundle.getInt(ARGS_MUSIC, -1) != -1){
+                addMusic(bundle.getInt(ARGS_MUSIC));
             }
         } else {
             viewModel.setFilter(date);
@@ -218,6 +233,10 @@ public class DayEditModeFragment extends DayParentFragment {
         outState.putInt(ARGS_MONTH, month);
         outState.putInt(ARGS_DAY_OF_MONTH, dayOfMonth);
         outState.putInt(ARGS_DAY_OF_WEEK, dayOfWeek);
+
+        if(outState != null){
+            outState.putInt(ARGS_MUSIC, music);
+        }
 
         if(img != null){
             outState.putByteArray(ARGS_IMAGE,
@@ -275,6 +294,14 @@ public class DayEditModeFragment extends DayParentFragment {
             } else {
                 addSnapshot();
             }
+        });
+
+        fabAddMusic.setOnClickListener(l->{
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.addToBackStack(null);
+            // Create and show the dialog.
+            DialogFragment newFragment = new ChooseBackgroundMusucDialog();
+            newFragment.show(ft, "dialog");
         });
     }
 
@@ -456,5 +483,30 @@ public class DayEditModeFragment extends DayParentFragment {
         } else {
             Toast.makeText(getContext(), R.string.no_appropriate_apps, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String getMusicNameByInt(int mus){
+        switch (mus){
+            case 0:{
+                return "winter";
+            }
+            case 1:{
+                return "spring";
+            }
+            case 2:{
+                return "summer";
+            }
+            case 3:{
+                return "autumn";
+            }
+        }
+        return null;
+    }
+
+    public void addMusic(int mus){
+        music = mus;
+        tvMusic.setVisibility(View.VISIBLE);
+        tvMusic.setText("You have choose background music \""
+                + getMusicNameByInt(mus) + "\"");
     }
 }

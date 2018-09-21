@@ -64,6 +64,14 @@
                 android:hint="@string/hint_descr"
                 android:visibility="gone"/>
 
+            <TextView
+                android:id="@+id/tv_music"
+                android:layout_marginTop="@dimen/edit_mode_inner_padding"
+                android:layout_marginBottom="@dimen/edit_mode_inner_padding"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
             <Button
                 android:id="@+id/btn_save"
                 android:layout_width="wrap_content"

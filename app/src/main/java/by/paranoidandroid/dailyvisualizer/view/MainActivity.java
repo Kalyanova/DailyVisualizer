@@ -162,4 +162,12 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
             fm.beginTransaction().show(active).commit();
         }
     }
+
+    public Fragment getCurrentFragment(){
+        Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+        if(editModeFragment != null){
+            return editModeFragment;
+        }
+        return active;
+    }
 }

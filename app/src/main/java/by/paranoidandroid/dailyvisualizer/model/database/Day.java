@@ -13,9 +13,10 @@ public class Day {
   private String date;
   private String title;
   private String description;
-  private String music;
   private String latitude;
   private String longitude;
+
+  private int music = -1;
 
   public Day(String date, String title, String description) {
     this.date = date;
@@ -50,14 +51,6 @@ public class Day {
     this.description = description;
   }
 
-  public String getMusic() {
-    return music;
-  }
-
-  public void setMusic(String music) {
-    this.music = music;
-  }
-
   public String getLatitude() {
     return latitude;
   }
@@ -80,5 +73,13 @@ public class Day {
 
   public void setImage(byte[] image) {
     this.image = image;
+  }
+
+  public int getMusic() {
+    return music;
+  }
+
+  public void setMusic(int music) {
+    this.music = music;
   }
 }

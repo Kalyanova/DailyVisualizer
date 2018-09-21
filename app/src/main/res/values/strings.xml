@@ -32,4 +32,11 @@
   <string name="show_location">Show location </string>
   <string name="nothing_to_show">Sorry. No content for you!</string>
   <string name="no_appropriate_apps">Sorry, you haven\'t installed apps to perform this action!</string>
+
+  <array name="music_year_time">
+    <item>Winter</item>
+    <item>Spring</item>
+    <item>Summer</item>
+    <item>Autumn</item>
+  </array>
 </resources>
