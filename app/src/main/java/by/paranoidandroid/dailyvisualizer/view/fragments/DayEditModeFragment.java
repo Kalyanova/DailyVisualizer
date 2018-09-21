@@ -266,6 +266,7 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddSnapshot.setOnClickListener(v -> {
             closeFABMenu();
             fabAddImage.setClickable(false);
+            fabAddSnapshot.setClickable(false);
             if (!checkPermission(permission.WRITE_EXTERNAL_STORAGE,
                 permission.READ_EXTERNAL_STORAGE)) {
                 requestPermissions(new String[]{permission.WRITE_EXTERNAL_STORAGE,

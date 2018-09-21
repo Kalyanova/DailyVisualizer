@@ -140,11 +140,12 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     }
 
     private void resetActive(Fragment newActiveFragment) {
-        if(isEditModeOpened){
-            fm.beginTransaction().replace(R.id.main_container, newActiveFragment).commit();
-        } else {
-            fm.beginTransaction().hide(active).show(newActiveFragment).commit();
-        }
+        fm.beginTransaction().hide(active).show(newActiveFragment).commit();
+//        if(isEditModeOpened){
+//            fm.beginTransaction().replace(R.id.main_container, newActiveFragment).commit();
+//        } else {
+//            fm.beginTransaction().hide(active).show(newActiveFragment).commit();
+//        }
         active = newActiveFragment;
     }
 
