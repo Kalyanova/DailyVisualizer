@@ -28,6 +28,13 @@
             app:layout_constraintLeft_toLeftOf="parent"
             android:textSize="16sp" />
 
+        <Spinner
+            android:id="@+id/years_times_songs_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            app:layout_constraintRight_toLeftOf="@id/mute_music_button" />
+
         <ImageButton
             android:id="@+id/mute_music_button"
             android:src="@drawable/ic_volume_on"

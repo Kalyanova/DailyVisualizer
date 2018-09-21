@@ -10,9 +10,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +36,9 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_MONTH_ID;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.YEAR_TIME_ID;
 
-public class DayFragment extends DayParentFragment {
+public class DayFragment extends DayParentFragment implements AdapterView.OnItemSelectedListener {
     OnDayEditModeListener onDayEditModeListener;
     TextView tvDescription;
     ImageView ivDay;
@@ -44,7 +47,9 @@ public class DayFragment extends DayParentFragment {
     Button btShowLocation;
     Day selectedDay;
     ImageButton muteButton;
+    Spinner songsSpinner;
     Boolean isMuted = false;
+    Integer selectedYearTime = 0;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -89,6 +94,7 @@ public class DayFragment extends DayParentFragment {
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
         dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
         muteButton = view.findViewById(R.id.mute_music_button);
+        songsSpinner = view.findViewById(R.id.years_times_songs_spinner);
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
@@ -130,6 +136,13 @@ public class DayFragment extends DayParentFragment {
             }
         });
 
+        songsSpinner.setSelection(selectedYearTime);
+        songsSpinner.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.year_times_songs, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        songsSpinner.setAdapter(adapter);
+
         muteButton.setOnClickListener(view1 -> {
             if (!isMuted) {
                 isMuted = true;
@@ -138,12 +151,12 @@ public class DayFragment extends DayParentFragment {
             } else {
                 isMuted = false;
                 muteButton.setImageResource(R.drawable.ic_volume_on);
-                startMusicService();
+                startMusicService(selectedYearTime);
             }
         });
 
         if (!isMuted)
-            startMusicService();
+            startMusicService(0);
 
         return view;
     }
@@ -213,6 +226,39 @@ public class DayFragment extends DayParentFragment {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        switch (i) {
+            case 0: {
+                stopMusicService();
+                startMusicService(1);
+                selectedYearTime = 1;
+                break;
+            }
+            case 1: {
+                stopMusicService();
+                startMusicService(2);
+                selectedYearTime = 2;
+                break;
+            }
+            case 2: {
+                stopMusicService();
+                startMusicService(3);
+                selectedYearTime = 3;
+                break;
+            }
+            case 3: {
+                stopMusicService();
+                startMusicService(4);
+                selectedYearTime = 4;
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) { }
+
     public interface OnDayEditModeListener {
         void onDayEditModeOpened();
     }
@@ -222,11 +268,23 @@ public class DayFragment extends DayParentFragment {
         getActivity().stopService(serviceIntent);
     }
 
-    private void startMusicService() {
+    private void startMusicService(int yearTime) {
         Intent serviceIntent = new Intent(getContext(), MusicService.class);
-        serviceIntent.putExtra(SONG_DATE_NOTIFICATION_ID,
-                getDayTitle(year, month, dayOfMonth));
-        serviceIntent.putExtra(SONG_MONTH_ID, month);
+        serviceIntent.putExtra(SONG_DATE_NOTIFICATION_ID, getDayTitle(year, month, dayOfMonth));
+        if (yearTime < 1) {
+            if (month > 1 && month < 5)
+                selectedYearTime = 1;
+            else if (month > 4 && month < 8)
+                selectedYearTime = 2;
+            else if (month > 7 && month < 11)
+                selectedYearTime = 3;
+            else
+                selectedYearTime = 4;
+        } else {
+            selectedYearTime = yearTime;
+        }
+
+        serviceIntent.putExtra(YEAR_TIME_ID, selectedYearTime);
         getActivity().startService(serviceIntent);
     }
 
@@ -237,7 +295,7 @@ public class DayFragment extends DayParentFragment {
         if (hidden) {
             stopMusicService();
         } else if (!isMuted){
-            startMusicService();
+            startMusicService(selectedYearTime);
         }
     }
 

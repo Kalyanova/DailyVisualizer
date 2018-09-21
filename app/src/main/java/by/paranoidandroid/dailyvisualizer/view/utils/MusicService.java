@@ -14,7 +14,7 @@ import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.view.MainActivity;
 import static by.paranoidandroid.dailyvisualizer.DailyVisualizerApp.CHANNEL_ID;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_MONTH_ID;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.YEAR_TIME_ID;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener {
     MediaPlayer musicPlayer;
@@ -28,7 +28,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String dateToShow = intent.getStringExtra(SONG_DATE_NOTIFICATION_ID);
-        Integer monthNumber = intent.getIntExtra(SONG_MONTH_ID, 0);
+        Integer yearTime = intent.getIntExtra(YEAR_TIME_ID, 0);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
@@ -41,14 +41,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 .build();
 
         Uri songPath;
-        if (monthNumber > 1 && monthNumber < 5)
-            songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.spring_mp3);
-        else if (monthNumber > 4 && monthNumber < 8)
-            songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.summer_mp3);
-        else if (monthNumber > 7 && monthNumber < 11)
+        if (yearTime == 1)
             songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.autumn_mp3);
-        else
+        else if (yearTime == 2)
             songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.winter_mp3);
+        else if (yearTime == 3)
+            songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.spring_mp3);
+        else
+            songPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.summer_mp3);
 
         musicPlayer = new MediaPlayer();
         try {
