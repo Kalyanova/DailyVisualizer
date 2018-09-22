@@ -10,6 +10,6 @@
         android:title="@string/menu_day"
         android:icon="@drawable/ic_view_day" />
     <item android:id="@+id/action_settings"
-        android:title="@string/menu_settings"
-        android:icon="@drawable/ic_settings" />
+        android:title="@string/menu_about"
+        android:icon="@drawable/ic_info" />
 </menu>

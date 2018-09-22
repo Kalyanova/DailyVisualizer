@@ -193,7 +193,7 @@ public class DayEditModeFragment extends DayParentFragment {
                             .decodeByteArray(day.getImage(), 0, day.getImage().length);
                         img.setImageBitmap(bitmap);
                     }
-                    if (day.getMusic() != -1){
+                    if (music != -1){
                        addMusic(day.getMusic());
                     }
                 }
