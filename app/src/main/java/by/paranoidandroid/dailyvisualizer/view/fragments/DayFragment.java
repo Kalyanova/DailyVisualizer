@@ -1,6 +1,8 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
@@ -9,11 +11,11 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORM
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_CODE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
@@ -32,7 +33,6 @@ import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.view.utils.MusicService;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
-
 import java.util.Locale;
 
 public class DayFragment extends DayParentFragment implements DialogDeleteDayFragment.OnDismissDialogListener {
@@ -124,24 +124,26 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
                     ivDay.setImageDrawable(null);
                 }
                 if (day.getLatitude() != null) {
-                    btShowLocation.setVisibility(View.VISIBLE);
+                    btShowLocation.setVisibility(VISIBLE);
 
                     btShowLocation.setOnClickListener(v->{
                         LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
                 } else {
-                    btShowLocation.setVisibility(View.GONE);
+                    btShowLocation.setVisibility(GONE);
                 }
                 if (day.getMusic() != -1) {
                     muteButton.setClickable(true);
                     music = day.getMusic();
+                    muteButton.setVisibility(VISIBLE);
                 } else {
-                    muteButton.setClickable(false);
+                    muteButton.setVisibility(GONE);
                 }
             } else {
+                muteButton.setVisibility(GONE);
                 tvDescription.setText(getString(R.string.label_empty_day));
                 ivDay.setImageDrawable(null);
-                btShowLocation.setVisibility(View.GONE);
+                btShowLocation.setVisibility(GONE);
                 muteButton.setClickable(false);
                 isMuted = true;
             }
@@ -180,7 +182,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         if (resultCode == RESULT_OK) {
             if (requestCode == FRAGMENT_CODE){
                 dayIsAdded = true;
-                Log.d("UPDATEEE", "UPDATE");
                 year = data.getIntExtra(ARGS_YEAR,0);
                 month = data.getIntExtra(ARGS_MONTH,0);
                 dayOfMonth = data.getIntExtra(ARGS_DAY_OF_MONTH,0);
@@ -196,7 +197,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
             case R.id.action_edit:
                 item.setEnabled(false); // TODO: disable delete button too
                 onDayEditModeListener.onDayEditModeOpened();
-                Toast.makeText(getActivity(), "Edit click", Toast.LENGTH_SHORT).show();
                 DayEditModeFragment editModeFragment = DayEditModeFragment.newInstance(year,
                         month,
                         dayOfMonth,
@@ -209,7 +209,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
                         .commit();
                 return true;
             case R.id.action_delete:
-                // TODO: delete day from database
                 if (selectedDay != null) {
                     dialogFragment.show(getFragmentManager(), "a");
                     onDismissDialog();
@@ -237,7 +236,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
         model.setFilter(date);
         dayLiveData = model.getSearchBy();
-        // TODO: Retrieve other stuff from database.
     }
 
     private void stopMusicService() {
@@ -287,11 +285,11 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
 
     private void hideFABs() {
         findFABs();
-        fabAdd.setVisibility(View.GONE);
-        fabAddImage.setVisibility(View.GONE);
-        fabAddSnapshot.setVisibility(View.GONE);
-        fabAddMusic.setVisibility(View.GONE);
-        fabAddLocation.setVisibility(View.GONE);
+        fabAdd.setVisibility(GONE);
+        fabAddImage.setVisibility(GONE);
+        fabAddSnapshot.setVisibility(GONE);
+        fabAddMusic.setVisibility(GONE);
+        fabAddLocation.setVisibility(GONE);
     }
 
     protected void findFABs() {

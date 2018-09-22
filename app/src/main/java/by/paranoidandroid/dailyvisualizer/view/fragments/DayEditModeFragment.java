@@ -75,7 +75,6 @@ public class DayEditModeFragment extends DayParentFragment {
 
     OnDayEditModeListener onDayEditModeListener;
     private boolean isFABOpened;
-    private TextView tvMusic;
     private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     private EditDayViewModel viewModel;
@@ -148,7 +147,6 @@ public class DayEditModeFragment extends DayParentFragment {
         month = bundle.getInt(ARGS_MONTH);
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
         dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
-        tvMusic = view.findViewById(R.id.tv_music);
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
@@ -202,8 +200,6 @@ public class DayEditModeFragment extends DayParentFragment {
                     }
                     if (day.getMusic() != -1){
                        addMusic(day.getMusic());
-                    } else {
-                        tvMusic.setVisibility(GONE);
                     }
                 }
             });
@@ -256,7 +252,7 @@ public class DayEditModeFragment extends DayParentFragment {
 
     private void setupFabs() {
         fabAdd.setOnClickListener(v -> {
-                Toast.makeText(getActivity(), "Add click", Toast.LENGTH_SHORT).show();
+            closeFABMenu();
                 if (!isFABOpened) {
                     showFABMenu();
                 } else {
@@ -266,10 +262,10 @@ public class DayEditModeFragment extends DayParentFragment {
         );
 
         fabAddImage.setOnClickListener(v -> {
-            closeFABMenu();
             fabAddSnapshot.setClickable(false);
             fabAddImage.setClickable(false);
             performImageFileSearch();
+            closeFABMenu();
         });
 
         fabAddLocation.setOnClickListener(v -> {
@@ -279,11 +275,11 @@ public class DayEditModeFragment extends DayParentFragment {
             } else {
                 addLocation();
             }
-
+            closeFABMenu();
         });
 
         fabAddSnapshot.setOnClickListener(v -> {
-            closeFABMenu();
+
             fabAddImage.setClickable(false);
             fabAddSnapshot.setClickable(false);
             if (!checkPermission(permission.WRITE_EXTERNAL_STORAGE,
@@ -294,6 +290,7 @@ public class DayEditModeFragment extends DayParentFragment {
             } else {
                 addSnapshot();
             }
+            closeFABMenu();
         });
 
         fabAddMusic.setOnClickListener(l -> {
@@ -302,6 +299,7 @@ public class DayEditModeFragment extends DayParentFragment {
             // Create and show the dialog.
             DialogFragment newFragment = new ChooseBackgroundMusucDialog();
             newFragment.show(ft, "dialog");
+            closeFABMenu();
         });
     }
 
@@ -441,6 +439,7 @@ public class DayEditModeFragment extends DayParentFragment {
         int padding = getResources().getDimensionPixelSize(R.dimen.map_padding);
         ((View) iv.getParent()).setPadding(padding, padding, padding, padding);
         fabAddLocation.setClickable(false);
+        closeFABMenu();
     }
 
     //permission already checked
@@ -510,8 +509,8 @@ public class DayEditModeFragment extends DayParentFragment {
 
     public void addMusic(int mus) {
         music = mus;
-        tvMusic.setVisibility(View.VISIBLE);
-        tvMusic.setText("You have picked " + getMusicNameByInt(mus) + " theme.");
+        Toast.makeText(getContext(), "You have picked " +
+            getMusicNameByInt(mus) + " theme.", Toast.LENGTH_LONG).show();
     }
 
     private void showFABs() {
