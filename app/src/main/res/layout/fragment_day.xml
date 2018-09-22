@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_background"
+        android:orientation="vertical"
+        android:padding="@dimen/header_padding">
+
+        <TextView
+            android:id="@+id/tv_preview_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_day_of_the_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/header_padding">
+
+            <TextView
+                android:id="@+id/tv_desctription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textSize="18sp" />
+
+            <ImageView
+              android:id="@+id/iv_day_picture"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+
+            <ImageView
+              android:id="@+id/btn_show_location"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/map_height"
+              android:padding="@dimen/map_padding"
+              android:cropToPadding="true"
+              android:scaleType="centerCrop"
+              android:background="@drawable/border_background"
+              android:src="@drawable/map"
+              android:clickable="true"
+              android:focusable="true"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

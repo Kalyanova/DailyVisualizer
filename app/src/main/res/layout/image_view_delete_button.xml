@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginTop="@dimen/edit_mode_inner_padding"
+  android:layout_marginBottom="@dimen/edit_mode_inner_padding"
+  android:background="@drawable/border_background">
+
+  <ImageView
+    android:id="@+id/iv_picture"
+    android:scaleType="centerCrop"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+  <ImageButton
+    android:background="@null"
+    android:id="@+id/ib_delete_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/ic_cancel"
+    android:layout_alignParentRight="true"/>
+</RelativeLayout>
