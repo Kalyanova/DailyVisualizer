@@ -27,7 +27,7 @@ import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
 import java.util.Locale;
 
-public class DayFragment extends DayParentFragment {
+public class DayFragment extends DayParentFragment implements DialogDeleteDayFragment.OnDismissDialogListener {
     OnDayEditModeListener onDayEditModeListener;
     TextView tvDescription;
     ImageView ivDay;
@@ -35,6 +35,8 @@ public class DayFragment extends DayParentFragment {
     LiveData<Day> dayLiveData;
     ImageView btShowLocation;
     Day selectedDay;
+    DialogDeleteDayFragment dialogFragment;
+    int stateDialogButton;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -65,6 +67,8 @@ public class DayFragment extends DayParentFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
+        dialogFragment = new DialogDeleteDayFragment();
+        dialogFragment.setListenerDissmis(this);
     }
 
     @Override
@@ -146,9 +150,8 @@ public class DayFragment extends DayParentFragment {
             case R.id.action_delete:
                 // TODO: delete day from database
                 if (selectedDay != null) {
-                    model.deleteDay(selectedDay);
-                    selectedDay = null;
-                    Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
+                    dialogFragment.show(getFragmentManager(), "a");
+                    onDismissDialog();
                 } else {
                     Toast.makeText(getActivity(), "Nothing to delete!", Toast.LENGTH_SHORT).show();
                 }
@@ -204,5 +207,28 @@ public class DayFragment extends DayParentFragment {
         fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
         fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
         fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
+    }
+
+    public void onDialogButtonClick(int state) {
+        if (state == 1) {
+            stateDialogButton = 1;
+        }
+    }
+
+    @Override
+    public void onDismissDialog() {
+        switch (stateDialogButton) {
+
+            case 1:
+                model.deleteDay(selectedDay);
+                selectedDay = null;
+                Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_LONG).show();
+                stateDialogButton = 0;
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
     }
 }

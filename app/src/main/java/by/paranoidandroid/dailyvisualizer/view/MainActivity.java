@@ -17,6 +17,7 @@ import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.utils.CalendarDate;
 import by.paranoidandroid.dailyvisualizer.view.fragments.CalendarFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment;
+import by.paranoidandroid.dailyvisualizer.view.fragments.DialogDeleteDayFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SearchFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SettingsFragment;
 
@@ -29,7 +30,7 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_
 
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener,
-        DayFragment.OnDayEditModeListener {
+        DayFragment.OnDayEditModeListener, DialogDeleteDayFragment.OnDialogButtonClickListener {
     private Fragment active;
     private FragmentManager fm;
     private Fragment searchFragment, calendarFragment, dayFragment, settingsFragment;
@@ -192,5 +193,12 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
         fabAddSnapshot.setVisibility(View.GONE);
         fabAddMusic.setVisibility(View.GONE);
         fabAddLocation.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void dialogButtonClick(int dialogState) {
+        fm = getSupportFragmentManager();
+        DayFragment dayFragment = (DayFragment) fm.findFragmentByTag(FRAGMENT_TAG_3);
+        dayFragment.onDialogButtonClick(dialogState);
     }
 }

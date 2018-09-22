@@ -32,4 +32,7 @@
   <string name="show_location">Show location </string>
   <string name="nothing_to_show">Sorry. No content for you!</string>
   <string name="no_appropriate_apps">Sorry, you haven\'t installed apps to perform this action!</string>
+  <string name="dialog_delete_day_message">Do you want to delete it? </string>
+  <string name="dialog_yes">Yes</string>
+  <string name="dialog_no">No</string>
 </resources>
