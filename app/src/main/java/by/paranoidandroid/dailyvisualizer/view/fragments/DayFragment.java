@@ -7,8 +7,6 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_MONTH_ID;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -103,7 +101,8 @@ public class DayFragment extends DayParentFragment {
             // Update the UI.
             // TODO: change it, etrieve other stuff from database
             if (day != null) {
-                selectedDay = day;                tvDescription.setText(day.getDate() + "\n"
+                selectedDay = day;
+                tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
                 if(day.getImage() != null){
@@ -114,10 +113,10 @@ public class DayFragment extends DayParentFragment {
                 if(day.getLatitude() != null){
                     btShowLocation.setVisibility(View.VISIBLE);
                     btShowLocation.setOnClickListener(v->{
-                      LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
+                        LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
                 } else {
-                   btShowLocation.setVisibility(View.GONE);
+                    btShowLocation.setVisibility(View.GONE);
                 }
                 if (day.getMusic() != -1) {
                     music = day.getMusic();
@@ -229,6 +228,7 @@ public class DayFragment extends DayParentFragment {
 
     @Override
     public void onStop() {
+        isMuted = true;
         stopMusicService();
         super.onStop();
     }

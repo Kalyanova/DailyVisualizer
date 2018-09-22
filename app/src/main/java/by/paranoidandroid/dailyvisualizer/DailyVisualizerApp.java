@@ -30,6 +30,7 @@ public class DailyVisualizerApp extends Application {
                     CHANNEL_ID,
                     "Music Service Channel",
                     NotificationManager.IMPORTANCE_DEFAULT);
+            serviceChannel.setSound(null, null);
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(serviceChannel);

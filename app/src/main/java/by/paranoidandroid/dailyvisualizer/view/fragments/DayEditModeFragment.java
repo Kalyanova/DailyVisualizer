@@ -17,7 +17,6 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_I
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
-
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -34,7 +33,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,7 +48,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
@@ -77,7 +74,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private Location location;
     private ProgressBar progressBar;
     private String mCurrentPhotoPath;
-    private Integer music;
+    private Integer music = -1;
 
     private OnClickListener deleteImageLisnener = view -> {
         img = null;
@@ -97,7 +94,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private ImageView img;
 
     public static DayEditModeFragment newInstance(int year, int month, int dayOfMonth,
-        int dayOfWeek) {
+                                                  int dayOfWeek) {
         DayEditModeFragment fragment = new DayEditModeFragment();
         Bundle bundle = new Bundle(4);
         bundle.putInt(ARGS_YEAR, year);
@@ -118,12 +115,12 @@ public class DayEditModeFragment extends DayParentFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-        Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_mode_day, container, false);
 
         Bundle bundle = (savedInstanceState == null)
-            ? getArguments()
-            : savedInstanceState;
+                ? getArguments()
+                : savedInstanceState;
 
         year = bundle.getInt(ARGS_YEAR);
         month = bundle.getInt(ARGS_MONTH);
@@ -144,8 +141,8 @@ public class DayEditModeFragment extends DayParentFragment {
             // TODO: change it - add saving other stuff (image, location and etc.) to database
             String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
             Day day = new Day(date,
-                etTitle.getText().toString().trim(),
-                etDescription.getText().toString().trim());
+                    etTitle.getText().toString().trim(),
+                    etDescription.getText().toString().trim());
             if (img != null) {
                 Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
                 day.setImage(getByteArray(bitmap));
@@ -154,13 +151,13 @@ public class DayEditModeFragment extends DayParentFragment {
                 day.setLongitude(String.valueOf(location.getLongitude()));
                 day.setLatitude(String.valueOf(location.getLatitude()));
             }
-            if(music != null){
-                day.setMusic(music);
-            }
+
+            day.setMusic(music);
+
             viewModel.insertDay(day);
             // Here we try to close edit mode fragment like Activity with finish()
             getActivity().getSupportFragmentManager()
-                .popBackStack();
+                    .popBackStack();
         });
 
         setupFabs(view);
@@ -183,9 +180,6 @@ public class DayEditModeFragment extends DayParentFragment {
             if(bundle.getParcelable(ARGS_LOCATION) != null){
                 location = bundle.getParcelable(ARGS_LOCATION);
                 showLocationButton();
-            }
-            if( bundle.getInt(ARGS_MUSIC, -1) != -1){
-                addMusic(bundle.getInt(ARGS_MUSIC));
             }
         } else {
             viewModel.setFilter(date);
@@ -233,14 +227,11 @@ public class DayEditModeFragment extends DayParentFragment {
         outState.putInt(ARGS_MONTH, month);
         outState.putInt(ARGS_DAY_OF_MONTH, dayOfMonth);
         outState.putInt(ARGS_DAY_OF_WEEK, dayOfWeek);
-
-        if(outState != null){
-            outState.putInt(ARGS_MUSIC, music);
-        }
+        outState.putInt(ARGS_MUSIC, music);
 
         if(img != null){
             outState.putByteArray(ARGS_IMAGE,
-                getByteArray(((BitmapDrawable) img.getDrawable()).getBitmap()));
+                    getByteArray(((BitmapDrawable) img.getDrawable()).getBitmap()));
         }
         outState.putString(ARGS_TITLE, etTitle.getText().toString());
         outState.putString(ARGS_DESCRIPTION, etDescription.getText().toString());
@@ -255,13 +246,13 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddMusic = view.findViewById(R.id.fab_add_music);
         fabAddLocation = view.findViewById(R.id.fab_add_location);
         fabAdd.setOnClickListener(v -> {
-                Toast.makeText(getActivity(), "Add click", Toast.LENGTH_SHORT).show();
-                if (!isFABOpened) {
-                    showFABMenu();
-                } else {
-                    closeFABMenu();
+                    Toast.makeText(getActivity(), "Add click", Toast.LENGTH_SHORT).show();
+                    if (!isFABOpened) {
+                        showFABMenu();
+                    } else {
+                        closeFABMenu();
+                    }
                 }
-            }
         );
 
         fabAddImage.setOnClickListener(v -> {
@@ -275,7 +266,7 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddLocation.setOnClickListener(v -> {
             if (!checkPermission(permission.ACCESS_FINE_LOCATION)) {
                 requestPermissions(new String[]{permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSION_FOR_LOCATION);
+                        REQUEST_PERMISSION_FOR_LOCATION);
             } else {
                 addLocation();
             }
@@ -287,10 +278,10 @@ public class DayEditModeFragment extends DayParentFragment {
             fabAddImage.setClickable(false);
             fabAddSnapshot.setClickable(false);
             if (!checkPermission(permission.WRITE_EXTERNAL_STORAGE,
-                permission.READ_EXTERNAL_STORAGE)) {
+                    permission.READ_EXTERNAL_STORAGE)) {
                 requestPermissions(new String[]{permission.WRITE_EXTERNAL_STORAGE,
-                        permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_PERMISSION_FOR_SNAPSHOT);
+                                permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION_FOR_SNAPSHOT);
             } else {
                 addSnapshot();
             }
@@ -307,18 +298,18 @@ public class DayEditModeFragment extends DayParentFragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-        @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_PERMISSION_FOR_SNAPSHOT) {
             if (grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 addSnapshot();
             } else {
                 //TODO: implement this sutuation
             }
         } else if (requestCode == REQUEST_PERMISSION_FOR_LOCATION) {
             if (grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 addLocation();
             } else {
                 //TODO: implement this sutuation
@@ -331,9 +322,9 @@ public class DayEditModeFragment extends DayParentFragment {
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-            imageFileName,
-            ".jpg",
-            storageDir
+                imageFileName,
+                ".jpg",
+                storageDir
         );
 
         mCurrentPhotoPath = image.getAbsolutePath();
@@ -351,8 +342,8 @@ public class DayEditModeFragment extends DayParentFragment {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(getActivity(),
-                    "by.paranoidandroid.dailyvisualizer.provider",
-                    photoFile);
+                        "by.paranoidandroid.dailyvisualizer.provider",
+                        photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_SHAPSHOT);
             }
@@ -362,7 +353,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private boolean checkPermission(String... permissions) {
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(getActivity(), permission) !=
-                PackageManager.PERMISSION_GRANTED) {
+                    PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
         }
@@ -443,7 +434,7 @@ public class DayEditModeFragment extends DayParentFragment {
     @SuppressLint("MissingPermission")
     private void addLocation() {
         LocationManager locationManager = (LocationManager) getActivity()
-            .getSystemService(Context.LOCATION_SERVICE);
+                .getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = LocationManager.NETWORK_PROVIDER;
         location = locationManager.getLastKnownLocation(locationProvider);
         showLocationButton();
@@ -488,25 +479,24 @@ public class DayEditModeFragment extends DayParentFragment {
     private String getMusicNameByInt(int mus){
         switch (mus){
             case 0:{
-                return "winter";
-            }
-            case 1:{
                 return "spring";
             }
-            case 2:{
+            case 1:{
                 return "summer";
             }
-            case 3:{
+            case 2:{
                 return "autumn";
             }
+            case 3:{
+                return "winter";
+            }
         }
-        return null;
+        return "-1";
     }
 
     public void addMusic(int mus){
         music = mus;
         tvMusic.setVisibility(View.VISIBLE);
-        tvMusic.setText("You have choose background music \""
-                + getMusicNameByInt(mus) + "\"");
+        tvMusic.setText("You have picked " + getMusicNameByInt(mus) + " theme.");
     }
 }
