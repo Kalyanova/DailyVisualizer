@@ -1,22 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
-import static android.app.Activity.RESULT_OK;
-import static android.view.View.GONE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
-
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -34,6 +17,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -64,9 +50,14 @@ import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
@@ -78,7 +69,6 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_P
 public class DayEditModeFragment extends DayParentFragment {
     OnDayEditModeListener onDayEditModeListener;
     private boolean isFABOpened;
-    private Button btnSave;
     private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     private EditDayViewModel viewModel;
@@ -119,7 +109,7 @@ public class DayEditModeFragment extends DayParentFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         setRetainInstance(true);
         viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
     }
@@ -157,26 +147,6 @@ public class DayEditModeFragment extends DayParentFragment {
         this.container = view.findViewById(R.id.ll_container);
         etTitle = view.findViewById(R.id.et_title);
         etDescription = view.findViewById(R.id.et_description);
-
-        btnSave = view.findViewById(R.id.btn_save);
-        btnSave.setOnClickListener(v -> {
-            // TODO: change it - add saving other stuff (image, location and etc.) to database
-            String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
-            Day day = new Day(date,
-                etTitle.getText().toString().trim(),
-                etDescription.getText().toString().trim());
-            if (img != null) {
-                Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
-                day.setImage(getByteArray(bitmap));
-            }
-            if(location != null){
-                day.setLongitude(String.valueOf(location.getLongitude()));
-                day.setLatitude(String.valueOf(location.getLatitude()));
-            }
-            viewModel.insertDay(day);
-            // Here we try to close edit mode fragment like Activity with finish()
-            createIntentForDayFragment();
-        });
 
         showFABs();
         setupFabs();
@@ -243,7 +213,6 @@ public class DayEditModeFragment extends DayParentFragment {
         progressBar.setVisibility(GONE);
         etDescription.setVisibility(View.VISIBLE);
         etTitle.setVisibility(View.VISIBLE);
-        btnSave.setVisibility(View.VISIBLE);
     }
 
     private byte[] getByteArray(Bitmap bitmap){
@@ -478,7 +447,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private ImageView createImageView(OnClickListener listenerDelete) {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View view = li.inflate(R.layout.image_view_delete_button, null);
-        container.addView(view, container.getChildCount()-1);
+        container.addView(view, container.getChildCount());
         ImageView iv  = view.findViewById(R.id.iv_picture);
         view.findViewById(R.id.ib_delete_image).setOnClickListener(listenerDelete);
         return iv;
@@ -507,5 +476,36 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
         fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
         fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_edit_day, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
+                Day day = new Day(date,
+                    etTitle.getText().toString().trim(),
+                    etDescription.getText().toString().trim());
+                if (img != null) {
+                    Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
+                    day.setImage(getByteArray(bitmap));
+                }
+                if(location != null){
+                    day.setLongitude(String.valueOf(location.getLongitude()));
+                    day.setLatitude(String.valueOf(location.getLatitude()));
+                }
+                viewModel.insertDay(day);
+                // Here we try to close edit mode fragment like Activity with finish()
+                createIntentForDayFragment();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

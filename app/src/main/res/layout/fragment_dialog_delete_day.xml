@@ -24,7 +24,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="@string/dialog_no" />
+            android:text="@string/dialog_no"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/button_yes"
@@ -32,7 +34,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="@string/dialog_yes" />
+            android:text="@string/dialog_yes"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </LinearLayout>
