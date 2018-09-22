@@ -1,6 +1,24 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 
+import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MUSIC;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
+
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,20 +46,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment.OnDayEditModeListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -50,26 +55,16 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment.OnDayEditModeListener;
 import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
-
-import static android.app.Activity.RESULT_OK;
-import static android.view.View.GONE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MUSIC;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class DayEditModeFragment extends DayParentFragment {
 
@@ -169,7 +164,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 fabAddSnapshot.setClickable(false);
                 fabAddImage.setClickable(false);
                 byte arr[] = bundle.getByteArray(ARGS_IMAGE);
-                img = createImageView(deleteImageLisnener);
+                img = createImageView(deleteImageLisnener, false);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(arr, 0, arr.length);
                 img.setImageBitmap(bitmap);
             }
@@ -193,7 +188,7 @@ public class DayEditModeFragment extends DayParentFragment {
                     if (day.getImage() != null) {
                         fabAddSnapshot.setClickable(false);
                         fabAddImage.setClickable(false);
-                        img = createImageView(deleteImageLisnener);
+                        img = createImageView(deleteImageLisnener, false);
                         Bitmap bitmap = BitmapFactory
                             .decodeByteArray(day.getImage(), 0, day.getImage().length);
                         img.setImageBitmap(bitmap);
@@ -374,7 +369,7 @@ public class DayEditModeFragment extends DayParentFragment {
             if (requestCode == REQUEST_IMAGE_SHAPSHOT) {
                 Bitmap myBitmap = BitmapManager
                     .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
-                ImageView iv = createImageView(deleteImageLisnener);
+                ImageView iv = createImageView(deleteImageLisnener, false);
                 iv.setImageBitmap(myBitmap);
                 img = iv;
                 img = iv;
@@ -385,7 +380,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 // Pull that URI using resultData.getData().
                 if (data != null) {
                     Uri uri = data.getData();
-                    ImageView iv = createImageView(deleteImageLisnener);
+                    ImageView iv = createImageView(deleteImageLisnener, false);
                     iv.setImageURI(uri);
                     img = iv;
                 }
@@ -432,7 +427,7 @@ public class DayEditModeFragment extends DayParentFragment {
     }
 
     private void showLocationButton() {
-        ImageView iv = createImageView(deleteMapListener);
+        ImageView iv = createImageView(deleteMapListener, true);
         iv.getLayoutParams().height = ((int) getResources().getDimension(R.dimen.map_height));
         iv.setImageResource(R.drawable.map);
 
@@ -471,10 +466,19 @@ public class DayEditModeFragment extends DayParentFragment {
         openActivityForResult(intent, REQUEST_OPEN_IMAGE);
     }
 
-    private ImageView createImageView(OnClickListener listenerDelete) {
+    private ImageView createImageView(OnClickListener listenerDelete, boolean isLocation) {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View view = li.inflate(R.layout.image_view_delete_button, null);
-        container.addView(view, container.getChildCount());
+        if(isLocation){
+            container.addView(view, container.getChildCount());
+        } else {
+            if(location != null){
+                container.addView(view, container.getChildCount() - 1);
+            } else {
+                container.addView(view, container.getChildCount());
+            }
+        }
+
         ImageView iv = view.findViewById(R.id.iv_picture);
         view.findViewById(R.id.ib_delete_image).setOnClickListener(listenerDelete);
         return iv;
