@@ -1,21 +1,5 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
-import static android.app.Activity.RESULT_OK;
-import static android.view.View.GONE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_IMAGE_SHAPSHOT;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_OPEN_IMAGE;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_LOCATION;
-import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
@@ -34,16 +18,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment.OnDayEditModeListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
@@ -57,6 +45,8 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.database.Day;
@@ -64,9 +54,15 @@ import by.paranoidandroid.dailyvisualizer.view.utils.BitmapManager;
 import by.paranoidandroid.dailyvisualizer.viewmodel.EditDayViewModel;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DESCRIPTION;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_IMAGE;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_LOCATION;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MUSIC;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_TITLE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.IMAGE_MIME_TYPE;
@@ -76,8 +72,10 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_P
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
 public class DayEditModeFragment extends DayParentFragment {
+
+    OnDayEditModeListener onDayEditModeListener;
     private boolean isFABOpened;
-    private Button btnSave;
+    private TextView tvMusic;
     private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     private EditDayViewModel viewModel;
@@ -85,6 +83,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private Location location;
     private ProgressBar progressBar;
     private String mCurrentPhotoPath;
+    private Integer music = -1;
 
     private OnClickListener deleteImageLisnener = view -> {
         img = null;
@@ -118,9 +117,22 @@ public class DayEditModeFragment extends DayParentFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         setRetainInstance(true);
         viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            onDayEditModeListener = (OnDayEditModeListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(
+                context.toString() + " must implement OnDayEditModeListener");
+        }
     }
 
     @Override
@@ -136,6 +148,7 @@ public class DayEditModeFragment extends DayParentFragment {
         month = bundle.getInt(ARGS_MONTH);
         dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
         dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
+        tvMusic = view.findViewById(R.id.tv_music);
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
@@ -144,47 +157,25 @@ public class DayEditModeFragment extends DayParentFragment {
         this.container = view.findViewById(R.id.ll_container);
         etTitle = view.findViewById(R.id.et_title);
         etDescription = view.findViewById(R.id.et_description);
-
-        btnSave = view.findViewById(R.id.btn_save);
-        btnSave.setOnClickListener(v -> {
-            // TODO: change it - add saving other stuff (image, location and etc.) to database
-            String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
-            Day day = new Day(date,
-                etTitle.getText().toString().trim(),
-                etDescription.getText().toString().trim());
-            if (img != null) {
-                Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
-                day.setImage(getByteArray(bitmap));
-            }
-            if(location != null){
-                day.setLongitude(String.valueOf(location.getLongitude()));
-                day.setLatitude(String.valueOf(location.getLatitude()));
-            }
-            viewModel.insertDay(day);
-            // Here we try to close edit mode fragment like Activity with finish()
-            getActivity().getSupportFragmentManager()
-                .popBackStack();
-        });
-
         showFABs();
         setupFabs();
         progressBar = view.findViewById(R.id.pb_detail_mode);
 
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
 
-        if(bundle.getString(ARGS_TITLE) != null){
+        if (bundle.getString(ARGS_TITLE) != null) {
             changeUIVisibility();
             etTitle.setText(bundle.getString(ARGS_TITLE));
             etDescription.setText(bundle.getString(ARGS_DESCRIPTION));
-            if (bundle.getByteArray(ARGS_IMAGE) != null){
+            if (bundle.getByteArray(ARGS_IMAGE) != null) {
                 fabAddSnapshot.setClickable(false);
                 fabAddImage.setClickable(false);
-                byte arr [] = bundle.getByteArray(ARGS_IMAGE);
+                byte arr[] = bundle.getByteArray(ARGS_IMAGE);
                 img = createImageView(deleteImageLisnener);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(arr, 0, arr.length);
                 img.setImageBitmap(bitmap);
             }
-            if(bundle.getParcelable(ARGS_LOCATION) != null){
+            if (bundle.getParcelable(ARGS_LOCATION) != null) {
                 location = bundle.getParcelable(ARGS_LOCATION);
                 showLocationButton();
             }
@@ -192,21 +183,27 @@ public class DayEditModeFragment extends DayParentFragment {
             viewModel.setFilter(date);
             viewModel.getSearchBy().observe(this, day -> {
                 changeUIVisibility();
-                if(day != null){
+                if (day != null) {
                     etTitle.setText(day.getTitle());
                     etDescription.setText(day.getDescription());
-                    if(day.getLatitude() != null){
+                    if (day.getLatitude() != null) {
                         location = new Location("");
                         location.setLatitude(Double.valueOf(day.getLatitude()));
                         location.setLongitude(Double.valueOf(day.getLongitude()));
                         showLocationButton();
                     }
-                    if(day.getImage() != null){
+                    if (day.getImage() != null) {
                         fabAddSnapshot.setClickable(false);
                         fabAddImage.setClickable(false);
                         img = createImageView(deleteImageLisnener);
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length);
+                        Bitmap bitmap = BitmapFactory
+                            .decodeByteArray(day.getImage(), 0, day.getImage().length);
                         img.setImageBitmap(bitmap);
+                    }
+                    if (day.getMusic() != -1){
+                       addMusic(day.getMusic());
+                    } else {
+                        tvMusic.setVisibility(GONE);
                     }
                 }
             });
@@ -215,14 +212,25 @@ public class DayEditModeFragment extends DayParentFragment {
         return view;
     }
 
-    private void changeUIVisibility(){
+    public void createIntentForDayFragment() {
+        Intent intent = new Intent(getContext(), DayFragment.class);
+        intent.putExtra(ARGS_YEAR, year);
+        intent.putExtra(ARGS_MONTH, month);
+        intent.putExtra(ARGS_DAY_OF_MONTH, dayOfMonth);
+        intent.putExtra(ARGS_DAY_OF_WEEK, dayOfWeek);
+        onDayEditModeListener.onDayEditModeClosed();
+        getTargetFragment().onActivityResult(getTargetRequestCode(), RESULT_OK, intent);
+        getActivity().getSupportFragmentManager()
+            .popBackStack();
+    }
+
+    private void changeUIVisibility() {
         progressBar.setVisibility(GONE);
         etDescription.setVisibility(View.VISIBLE);
         etTitle.setVisibility(View.VISIBLE);
-        btnSave.setVisibility(View.VISIBLE);
     }
 
-    private byte[] getByteArray(Bitmap bitmap){
+    private byte[] getByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
@@ -234,8 +242,9 @@ public class DayEditModeFragment extends DayParentFragment {
         outState.putInt(ARGS_MONTH, month);
         outState.putInt(ARGS_DAY_OF_MONTH, dayOfMonth);
         outState.putInt(ARGS_DAY_OF_WEEK, dayOfWeek);
+        outState.putInt(ARGS_MUSIC, music);
 
-        if(img != null){
+        if (img != null) {
             outState.putByteArray(ARGS_IMAGE,
                 getByteArray(((BitmapDrawable) img.getDrawable()).getBitmap()));
         }
@@ -245,7 +254,7 @@ public class DayEditModeFragment extends DayParentFragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void setupFabs(){
+    private void setupFabs() {
         fabAdd.setOnClickListener(v -> {
                 Toast.makeText(getActivity(), "Add click", Toast.LENGTH_SHORT).show();
                 if (!isFABOpened) {
@@ -262,7 +271,6 @@ public class DayEditModeFragment extends DayParentFragment {
             fabAddImage.setClickable(false);
             performImageFileSearch();
         });
-
 
         fabAddLocation.setOnClickListener(v -> {
             if (!checkPermission(permission.ACCESS_FINE_LOCATION)) {
@@ -286,6 +294,14 @@ public class DayEditModeFragment extends DayParentFragment {
             } else {
                 addSnapshot();
             }
+        });
+
+        fabAddMusic.setOnClickListener(l -> {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.addToBackStack(null);
+            // Create and show the dialog.
+            DialogFragment newFragment = new ChooseBackgroundMusucDialog();
+            newFragment.show(ft, "dialog");
         });
     }
 
@@ -359,7 +375,7 @@ public class DayEditModeFragment extends DayParentFragment {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_SHAPSHOT) {
                 Bitmap myBitmap = BitmapManager
-                        .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
+                    .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
                 ImageView iv = createImageView(deleteImageLisnener);
                 iv.setImageBitmap(myBitmap);
                 img = iv;
@@ -379,19 +395,22 @@ public class DayEditModeFragment extends DayParentFragment {
         }
     }
 
-
     private void showFABMenu() {
         int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = true;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            fabAddLocation.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
+            fabAddLocation.animate()
+                .translationY(-getResources().getDimension(R.dimen.standard_75));
             fabAddMusic.animate().translationY(-getResources().getDimension(R.dimen.standard_130));
-            fabAddSnapshot.animate().translationY(-getResources().getDimension(R.dimen.standard_185));
+            fabAddSnapshot.animate()
+                .translationY(-getResources().getDimension(R.dimen.standard_185));
             fabAddImage.animate().translationY(-getResources().getDimension(R.dimen.standard_240));
         } else {
-            fabAddLocation.animate().translationX(-getResources().getDimension(R.dimen.standard_75));
+            fabAddLocation.animate()
+                .translationX(-getResources().getDimension(R.dimen.standard_75));
             fabAddMusic.animate().translationX(-getResources().getDimension(R.dimen.standard_130));
-            fabAddSnapshot.animate().translationX(-getResources().getDimension(R.dimen.standard_185));
+            fabAddSnapshot.animate()
+                .translationX(-getResources().getDimension(R.dimen.standard_185));
             fabAddImage.animate().translationX(-getResources().getDimension(R.dimen.standard_240));
         }
     }
@@ -414,13 +433,13 @@ public class DayEditModeFragment extends DayParentFragment {
         }
     }
 
-    private void showLocationButton(){
+    private void showLocationButton() {
         ImageView iv = createImageView(deleteMapListener);
-        iv.getLayoutParams().height = ((int)getResources().getDimension(R.dimen.map_height));
+        iv.getLayoutParams().height = ((int) getResources().getDimension(R.dimen.map_height));
         iv.setImageResource(R.drawable.map);
 
         int padding = getResources().getDimensionPixelSize(R.dimen.map_padding);
-        ((View)iv.getParent()).setPadding(padding, padding, padding, padding);
+        ((View) iv.getParent()).setPadding(padding, padding, padding, padding);
         fabAddLocation.setClickable(false);
     }
 
@@ -456,8 +475,8 @@ public class DayEditModeFragment extends DayParentFragment {
     private ImageView createImageView(OnClickListener listenerDelete) {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View view = li.inflate(R.layout.image_view_delete_button, null);
-        container.addView(view, container.getChildCount()-1);
-        ImageView iv  = view.findViewById(R.id.iv_picture);
+        container.addView(view, container.getChildCount());
+        ImageView iv = view.findViewById(R.id.iv_picture);
         view.findViewById(R.id.ib_delete_image).setOnClickListener(listenerDelete);
         return iv;
     }
@@ -468,6 +487,31 @@ public class DayEditModeFragment extends DayParentFragment {
         } else {
             Toast.makeText(getContext(), R.string.no_appropriate_apps, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    private String getMusicNameByInt(int mus) {
+        switch (mus) {
+            case 0: {
+                return "spring";
+            }
+            case 1: {
+                return "summer";
+            }
+            case 2: {
+                return "autumn";
+            }
+            case 3: {
+                return "winter";
+            }
+        }
+        return "-1";
+    }
+
+    public void addMusic(int mus) {
+        music = mus;
+        tvMusic.setVisibility(View.VISIBLE);
+        tvMusic.setText("You have picked " + getMusicNameByInt(mus) + " theme.");
     }
 
     private void showFABs() {
@@ -485,5 +529,42 @@ public class DayEditModeFragment extends DayParentFragment {
         fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
         fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
         fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_edit_day, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                String date = String
+                    .format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
+                Day day = new Day(date,
+                    etTitle.getText().toString().trim(),
+                    etDescription.getText().toString().trim());
+                if (img != null) {
+                    Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
+                    day.setImage(getByteArray(bitmap));
+                }
+                if (location != null) {
+                    day.setLongitude(String.valueOf(location.getLongitude()));
+                    day.setLatitude(String.valueOf(location.getLatitude()));
+                }
+
+                if(music != null){
+                    day.setMusic(music);
+                }
+                viewModel.insertDay(day);
+                // Here we try to close edit mode fragment like Activity with finish()
+                createIntentForDayFragment();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 }

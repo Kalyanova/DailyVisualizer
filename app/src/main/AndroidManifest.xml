@@ -31,6 +31,8 @@
               android:resource="@xml/provider_paths"/>
         </provider>
 
+        <service android:name=".view.utils.MusicService" />
+
     </application>
 
 </manifest>
