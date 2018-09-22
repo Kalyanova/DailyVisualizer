@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_margin="@dimen/timeline_margins">
+  <ImageView
+    android:id="@+id/timeline_item_image_view_circle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="@id/timeline_item_text_view_date_preview"
+    app:layout_constraintBottom_toBottomOf="@id/timeline_item_text_view_date_preview"
+    android:src="@drawable/circle"/>
+  <View
+    android:id="@+id/timeline_item_view_line"
+    android:layout_width="@dimen/timeline_line_width"
+    android:layout_height="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/timeline_item_image_view_circle"
+    app:layout_constraintLeft_toLeftOf="@id/timeline_item_image_view_circle"
+    app:layout_constraintRight_toRightOf="@id/timeline_item_image_view_circle"
+    android:layout_marginTop="@dimen/timeline_inner_margins"
+    android:background="@color/lineColor"/>
+  <ImageView
+    android:id="@+id/timeline_item_image_view_day_picture"
+    android:layout_width="@dimen/timeline_image_size"
+    android:src="@drawable/no_content"
+    android:scaleType="centerCrop"
+    android:layout_height="@dimen/timeline_image_size"
+    app:layout_constraintRight_toRightOf="parent"/>
+  <TextView
+    android:id="@+id/timeline_item_text_view_date_preview"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textColor="@color/colorAccent"
+    android:layout_marginLeft="@dimen/timeline_inner_margins"
+    app:layout_constraintLeft_toRightOf="@id/timeline_item_image_view_circle"
+    android:layout_marginStart="@dimen/timeline_inner_margins"/>
+
+  <TextView
+    android:id="@+id/timeline_item_text_view_title"
+    android:textStyle="bold"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/timeline_inner_margins"
+    android:layout_marginRight="@dimen/timeline_inner_margins"
+    app:layout_constraintTop_toBottomOf="@id/timeline_item_text_view_date_preview"
+    app:layout_constraintRight_toLeftOf="@id/timeline_item_image_view_day_picture"
+    app:layout_constraintLeft_toRightOf="@id/timeline_item_image_view_circle"
+    android:layout_marginLeft="@dimen/timeline_inner_margins"/>
+
+  <TextView
+    android:id="@+id/timeline_item_text_view_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/timeline_inner_margins"
+    android:layout_marginLeft="@dimen/timeline_inner_margins"
+    android:paddingBottom="@dimen/timeline_inner_margins"
+    android:textColor="@color/lineColor"
+    app:layout_constraintTop_toBottomOf="@id/timeline_item_text_view_title"
+    app:layout_constraintLeft_toRightOf="@id/timeline_item_image_view_circle"
+    android:layout_marginStart="@dimen/timeline_inner_margins"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
