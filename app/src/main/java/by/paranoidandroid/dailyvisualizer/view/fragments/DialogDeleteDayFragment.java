@@ -15,6 +15,12 @@ public class DialogDeleteDayFragment extends DialogFragment {
     private OnDismissDialogListener listener;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dialog_delete_day, null);
         view.findViewById(R.id.button_no).setOnClickListener(new View.OnClickListener() {
@@ -41,7 +47,9 @@ public class DialogDeleteDayFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        listener.onDismissDialog();
+        if (listener != null) {
+            listener.onDismissDialog();
+        }
     }
 
     public interface OnDialogButtonClickListener {
@@ -50,6 +58,7 @@ public class DialogDeleteDayFragment extends DialogFragment {
 
     public interface OnDismissDialogListener {
         void onDismissDialog();
+
     }
 
     public void setListenerDissmis(OnDismissDialogListener listener) {

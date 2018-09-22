@@ -24,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 import by.paranoidandroid.dailyvisualizer.R;
@@ -31,6 +32,7 @@ import by.paranoidandroid.dailyvisualizer.model.database.Day;
 import by.paranoidandroid.dailyvisualizer.view.utils.LocationMapManager;
 import by.paranoidandroid.dailyvisualizer.view.utils.MusicService;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
+
 import java.util.Locale;
 
 public class DayFragment extends DayParentFragment implements DialogDeleteDayFragment.OnDismissDialogListener {
@@ -77,8 +79,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
-        dialogFragment = new DialogDeleteDayFragment();
-        dialogFragment.setListenerDissmis(this);
     }
 
     @Override
@@ -103,6 +103,9 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         ivDay = view.findViewById(R.id.iv_day_picture);
         btShowLocation = view.findViewById(R.id.btn_show_location);
 
+        dialogFragment = new DialogDeleteDayFragment();
+        dialogFragment.setListenerDissmis(this);
+
         model = ViewModelProviders.of(getActivity()).get(DayViewModel.class);
         String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
         model.setFilter(date);
@@ -115,13 +118,14 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
                 tvDescription.setText(day.getDate() + "\n"
                         + day.getTitle() + "\n"
                         + day.getDescription());
-                if(day.getImage() != null){
+                if (day.getImage() != null) {
                     ivDay.setImageBitmap(BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length));
                 } else {
                     ivDay.setImageDrawable(null);
                 }
-                if(day.getLatitude() != null){
+                if (day.getLatitude() != null) {
                     btShowLocation.setVisibility(View.VISIBLE);
+
                     btShowLocation.setOnClickListener(v->{
                         LocationMapManager.showLocation(getActivity(), day.getLatitude(), day.getLongitude());
                     });
@@ -307,7 +311,6 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
     @Override
     public void onDismissDialog() {
         switch (stateDialogButton) {
-
             case 1:
                 model.deleteDay(selectedDay);
                 selectedDay = null;
@@ -315,6 +318,7 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
                 stateDialogButton = 0;
                 break;
             case 2:
+                stateDialogButton = 0;
                 break;
             default:
                 break;

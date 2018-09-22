@@ -37,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -377,6 +378,7 @@ public class DayEditModeFragment extends DayParentFragment {
                     .getBitmapForImageView(mCurrentPhotoPath, container.getWidth());
                 ImageView iv = createImageView(deleteImageLisnener);
                 iv.setImageBitmap(myBitmap);
+                img = iv;
                 img = iv;
             } else if (requestCode == REQUEST_OPEN_IMAGE) {
                 // The document selected by the user won't be returned in the intent.
