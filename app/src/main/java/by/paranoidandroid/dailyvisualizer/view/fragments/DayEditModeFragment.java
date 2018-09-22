@@ -495,16 +495,16 @@ public class DayEditModeFragment extends DayParentFragment {
     private String getMusicNameByInt(int mus) {
         switch (mus) {
             case 0: {
-                return "spring";
+                return "pensive";
             }
             case 1: {
-                return "summer";
+                return "cheerful";
             }
             case 2: {
-                return "autumn";
+                return "sad";
             }
             case 3: {
-                return "winter";
+                return "live";
             }
         }
         return "-1";
