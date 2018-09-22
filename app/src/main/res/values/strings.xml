@@ -33,10 +33,10 @@
   <string name="nothing_to_show">Sorry. No content for you!</string>
   <string name="no_appropriate_apps">Sorry, you haven\'t installed apps to perform this action!</string>
   <array name="music_year_time">
-    <item>Spring</item>
-    <item>Summer</item>
-    <item>Autumn</item>
-    <item>Winter</item>
+    <item>Pensive</item>
+    <item>Cheerful</item>
+    <item>Sad</item>
+    <item>Live</item>
   </array>
   <string name="dialog_delete_day_message">Do you want to delete it? </string>
   <string name="dialog_yes">Yes</string>
