@@ -3,8 +3,10 @@ package by.paranoidandroid.dailyvisualizer.view;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayEditModeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -171,13 +173,22 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     }
 
     @Override
+    public void onDayEditModeClosed() {
+        isEditModeOpened = false;
+        hideFABs();
+    }
+
+    @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (isEditModeOpened) {
             isEditModeOpened = false;
-            fm.beginTransaction().show(active).commit();
+            Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+            ((DayEditModeFragment)editModeFragment).createIntentForDayFragment();
+        } else {
+            super.onBackPressed();
         }
     }
+
 
     private void showFABs() {
         fabAdd.setVisibility(View.VISIBLE);
@@ -200,5 +211,13 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
         fm = getSupportFragmentManager();
         DayFragment dayFragment = (DayFragment) fm.findFragmentByTag(FRAGMENT_TAG_3);
         dayFragment.onDialogButtonClick(dialogState);
+    }
+
+    public Fragment getCurrentFragment(){
+        Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+        if(editModeFragment != null){
+            return editModeFragment;
+        }
+        return active;
     }
 }
