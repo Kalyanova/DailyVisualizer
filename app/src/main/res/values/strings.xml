@@ -1,3 +1,68 @@
 <resources>
-    <string name="app_name">DailyVisualizer</string>
+  <string name="app_name">DailyVisualizer</string>
+  <string name="menu_search">Search</string>
+  <string name="menu_calendar">Calendar</string>
+  <string name="menu_day">Day</string>
+  <string name="menu_about">About</string>
+  <string name="btn_search">Find</string>
+  <string name="action_save">Save</string>
+  <string name="action_edit">Edit</string>
+  <string name="action_delete">Delete</string>
+  <string name="label_empty_day">Nothing to show. Create new note for this date!</string>
+  <string name="hint_title">Title</string>
+  <string name="hint_descr">Description</string>
+
+  <plurals name="timeline_month">
+    <item quantity="one">1 month ago</item>
+    <item quantity="other">%d months ago</item>
+  </plurals>
+  <plurals name="timeline_year">
+    <item quantity="one">1 year ago</item>
+    <item quantity="other">%d years ago</item>
+  </plurals>
+  <plurals name="timeline_week">
+    <item quantity="one">1 week ago</item>
+    <item quantity="other">%d weeks ago</item>
+  </plurals>
+  <plurals name="timeline_days">
+    <item quantity="one">1 day ago</item>
+    <item quantity="other">%d days ago</item>
+  </plurals>
+  <string name="today">today</string>
+
+  <plurals name="timeline_month_later">
+    <item quantity="one">1 month later</item>
+    <item quantity="other">%d months later</item>
+  </plurals>
+  <plurals name="timeline_year_later">
+    <item quantity="one">1 year later</item>
+    <item quantity="other">%d years later</item>
+  </plurals>
+  <plurals name="timeline_week_later">
+    <item quantity="one">1 week later</item>
+    <item quantity="other">%d weeks later</item>
+  </plurals>
+  <plurals name="timeline_days_later">
+    <item quantity="one">1 day later</item>
+    <item quantity="other">%d days later</item>
+  </plurals>
+
+
+
+  <string name="install_maps">Please, install google maps!</string>
+  <string name="show_location">Show location </string>
+  <string name="nothing_to_show">Sorry. No content for you!</string>
+  <string name="no_appropriate_apps">Sorry, you haven\'t installed apps to perform this action!</string>
+  <array name="music_year_time">
+    <item>Pensive</item>
+    <item>Cheerful</item>
+    <item>Sad</item>
+    <item>Live</item>
+  </array>
+  <string name="dialog_delete_day_message">Do you want to delete it? </string>
+  <string name="dialog_yes">Yes</string>
+  <string name="dialog_no">No</string>
+
+  <string name="hello_aa">Hello, Android Academy!</string>
+  <string name="about_app">We are proud to represent our work of universal scale (or of a little less one). DailyVisualizer helps you to keep track of your daily routine, emphasizing it\'s most amazing moments. Using our app, you can edit any days in the calendar, take notes of them and be always in touch with your activities. See you there!</string>
 </resources>
