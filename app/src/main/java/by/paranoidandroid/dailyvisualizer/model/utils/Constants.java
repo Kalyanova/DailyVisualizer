@@ -23,4 +23,5 @@ public interface Constants {
     int REQUEST_PERMISSION_FOR_SNAPSHOT = 2;
     int REQUEST_PERMISSION_FOR_LOCATION = 3;
     int REQUEST_OPEN_IMAGE = 4;
+    int FRAGMENT_CODE = 5;
 }

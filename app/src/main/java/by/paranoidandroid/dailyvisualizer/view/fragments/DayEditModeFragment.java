@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment.OnDayEditModeListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
@@ -66,6 +67,7 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_P
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.REQUEST_PERMISSION_FOR_SNAPSHOT;
 
 public class DayEditModeFragment extends DayParentFragment {
+    OnDayEditModeListener onDayEditModeListener;
     private boolean isFABOpened;
     private EditText etTitle, etDescription;
     private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
@@ -110,6 +112,18 @@ public class DayEditModeFragment extends DayParentFragment {
         setHasOptionsMenu(true);
         setRetainInstance(true);
         viewModel = ViewModelProviders.of(this).get(EditDayViewModel.class);
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            onDayEditModeListener = (OnDayEditModeListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDayEditModeListener");
+        }
     }
 
     @Override
@@ -181,6 +195,18 @@ public class DayEditModeFragment extends DayParentFragment {
         }
 
         return view;
+    }
+
+    public void createIntentForDayFragment(){
+        Intent intent = new Intent(getContext(), DayFragment.class);
+        intent.putExtra(ARGS_YEAR, year);
+        intent.putExtra(ARGS_MONTH, month);
+        intent.putExtra(ARGS_DAY_OF_MONTH, dayOfMonth);
+        intent.putExtra(ARGS_DAY_OF_WEEK, dayOfWeek);
+        onDayEditModeListener.onDayEditModeClosed();
+        getTargetFragment().onActivityResult(getTargetRequestCode(), RESULT_OK, intent);
+        getActivity().getSupportFragmentManager()
+            .popBackStack();
     }
 
     private void changeUIVisibility(){
@@ -345,7 +371,6 @@ public class DayEditModeFragment extends DayParentFragment {
         }
     }
 
-
     private void showFABMenu() {
         int orientation = this.getResources().getConfiguration().orientation;
         isFABOpened = true;
@@ -465,8 +490,8 @@ public class DayEditModeFragment extends DayParentFragment {
             case R.id.action_save:
                 String date = String.format(Locale.ENGLISH, DATE_FORMAT, year, month + 1, dayOfMonth);
                 Day day = new Day(date,
-                        etTitle.getText().toString().trim(),
-                        etDescription.getText().toString().trim());
+                    etTitle.getText().toString().trim(),
+                    etDescription.getText().toString().trim());
                 if (img != null) {
                     Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
                     day.setImage(getByteArray(bitmap));
@@ -477,8 +502,7 @@ public class DayEditModeFragment extends DayParentFragment {
                 }
                 viewModel.insertDay(day);
                 // Here we try to close edit mode fragment like Activity with finish()
-                getActivity().getSupportFragmentManager()
-                        .popBackStack();
+                createIntentForDayFragment();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
