@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +38,7 @@ import java.util.Locale;
 
 public class DayFragment extends DayParentFragment implements DialogDeleteDayFragment.OnDismissDialogListener {
     OnDayEditModeListener onDayEditModeListener;
+    TextView tvDate, tvTitle;
     TextView tvDescription;
     ImageView ivDay;
     DayViewModel model;
@@ -87,18 +89,21 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         Bundle bundle = (savedInstanceState == null)
                 ? getArguments()
                 : savedInstanceState;
+
         if(!dayIsAdded){
             year = bundle.getInt(ARGS_YEAR);
             month = bundle.getInt(ARGS_MONTH);
             dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
             dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
         }
-        tvTitle = view.findViewById(R.id.tv_preview_day);
-        tvTitle.setText(getDayTitle(year, month, dayOfMonth));
+        tvDate = view.findViewById(R.id.tv_preview_day);
+        tvDate.setText(getDayTitle(year, month, dayOfMonth));
         muteButton = view.findViewById(R.id.mute_music_button);
+
         tvDayOfTheWeek = view.findViewById(R.id.tv_day_of_the_week);
         tvDayOfTheWeek.setText(getDayOfWeekName(dayOfWeek));
 
+        tvTitle = view.findViewById(R.id.tv_note_title);
         tvDescription = view.findViewById(R.id.tv_desctription);
         ivDay = view.findViewById(R.id.iv_day_picture);
         btShowLocation = view.findViewById(R.id.btn_show_location);
@@ -112,13 +117,24 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         dayLiveData = model.getSearchBy();
         dayLiveData.observe(this, day -> {
             // Update the UI.
-            // TODO: change it, etrieve other stuff from database
+            // TODO: change it, retrieve other stuff from database
             if (day != null) {
                 selectedDay = day;
-                tvDescription.setText(day.getDate() + "\n"
-                        + day.getTitle() + "\n"
-                        + day.getDescription());
-                if (day.getImage() != null) {
+
+                if (!TextUtils.isEmpty(day.getTitle())) {
+                    tvTitle.setText(day.getTitle());
+                    tvTitle.setVisibility(View.VISIBLE);
+                } else {
+                    tvTitle.setVisibility(View.GONE);
+                }
+                if (!TextUtils.isEmpty(day.getDescription())) {
+                    tvDescription.setText(day.getDescription());
+                    tvDescription.setVisibility(View.VISIBLE);
+                } else {
+                    tvDescription.setVisibility(View.GONE);
+                }
+
+                if(day.getImage() != null){
                     ivDay.setImageBitmap(BitmapFactory.decodeByteArray(day.getImage(), 0, day.getImage().length));
                 } else {
                     ivDay.setImageDrawable(null);
@@ -141,6 +157,7 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
                 }
             } else {
                 muteButton.setVisibility(GONE);
+                tvTitle.setVisibility(View.GONE);
                 tvDescription.setText(getString(R.string.label_empty_day));
                 ivDay.setImageDrawable(null);
                 btShowLocation.setVisibility(GONE);
@@ -227,8 +244,8 @@ public class DayFragment extends DayParentFragment implements DialogDeleteDayFra
         this.month = month;
         this.dayOfMonth = dayOfMonth;
         this.dayOfWeek = dayOfWeek;
-        if (tvTitle != null) {
-            tvTitle.setText(getDayTitle(year, month, dayOfMonth));
+        if (tvDate != null) {
+            tvDate.setText(getDayTitle(year, month, dayOfMonth));
         }
         if (tvDayOfTheWeek != null) {
             tvDayOfTheWeek.setText(getDayOfWeekName(dayOfWeek));
