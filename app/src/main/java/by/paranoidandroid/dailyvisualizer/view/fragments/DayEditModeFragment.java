@@ -202,7 +202,7 @@ public class DayEditModeFragment extends DayParentFragment {
                     if (day.getMusic() != -1){
                        addMusic(day.getMusic());
                     } else {
-                        tvMusic.setVisibility(GONE`);
+                        tvMusic.setVisibility(GONE);
                     }
                 }
             });
