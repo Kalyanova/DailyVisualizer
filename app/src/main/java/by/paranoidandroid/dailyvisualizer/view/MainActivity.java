@@ -4,14 +4,22 @@ package by.paranoidandroid.dailyvisualizer.view;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+
+import by.paranoidandroid.dailyvisualizer.view.fragments.DayEditModeFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Calendar;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.utils.CalendarDate;
 import by.paranoidandroid.dailyvisualizer.view.fragments.CalendarFragment;
-import by.paranoidandroid.dailyvisualizer.view.fragments.DayEditModeFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.DayFragment;
+import by.paranoidandroid.dailyvisualizer.view.fragments.DialogDeleteDayFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SearchFragment;
 import by.paranoidandroid.dailyvisualizer.view.fragments.SettingsFragment;
 
@@ -21,22 +29,28 @@ import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_3;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_4;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.CalendarListener,
-        DayFragment.OnDayEditModeListener {
+        DayFragment.OnDayEditModeListener, DialogDeleteDayFragment.OnDialogButtonClickListener {
     private Fragment active;
     private FragmentManager fm;
     private Fragment searchFragment, calendarFragment, dayFragment, settingsFragment;
     private BottomNavigationView bottomNavigationView;
     private boolean isEditModeOpened;
+    private FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fabAdd = findViewById(R.id.fab_add);
+        fabAddImage = findViewById(R.id.fab_add_image);
+        fabAddSnapshot = findViewById(R.id.fab_add_snapshot);
+        fabAddMusic = findViewById(R.id.fab_add_music);
+        fabAddLocation = findViewById(R.id.fab_add_location);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_bar);
         fm = getSupportFragmentManager();
@@ -93,15 +107,18 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
                     switch (item.getItemId()) {
                         case R.id.action_search:
                             resetActive(searchFragment);
+                            hideFABs();
                             return true;
                         case R.id.action_calendar:
                             resetActive(calendarFragment);
+                            hideFABs();
                             return true;
                         case R.id.action_day:
                             resetActive(dayFragment);
                             return true;
                         case R.id.action_settings:
                             resetActive(settingsFragment);
+                            hideFABs();
                             return true;
                     }
                     return true;
@@ -152,15 +169,48 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     @Override
     public void onDayEditModeOpened() {
         isEditModeOpened = true;
+        showFABs();
+    }
+
+    @Override
+    public void onDayEditModeClosed() {
+        isEditModeOpened = false;
+        hideFABs();
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (isEditModeOpened) {
             isEditModeOpened = false;
-            fm.beginTransaction().show(active).commit();
+            Fragment editModeFragment = fm.findFragmentByTag(FRAGMENT_TAG_5);
+            ((DayEditModeFragment)editModeFragment).createIntentForDayFragment();
+        } else {
+            super.onBackPressed();
         }
+    }
+
+
+    private void showFABs() {
+        fabAdd.setVisibility(View.VISIBLE);
+        fabAddImage.setVisibility(View.VISIBLE);
+        fabAddSnapshot.setVisibility(View.VISIBLE);
+        fabAddMusic.setVisibility(View.VISIBLE);
+        fabAddLocation.setVisibility(View.VISIBLE);
+    }
+
+    private void hideFABs() {
+        fabAdd.setVisibility(View.GONE);
+        fabAddImage.setVisibility(View.GONE);
+        fabAddSnapshot.setVisibility(View.GONE);
+        fabAddMusic.setVisibility(View.GONE);
+        fabAddLocation.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void dialogButtonClick(int dialogState) {
+        fm = getSupportFragmentManager();
+        DayFragment dayFragment = (DayFragment) fm.findFragmentByTag(FRAGMENT_TAG_3);
+        dayFragment.onDialogButtonClick(dialogState);
     }
 
     public Fragment getCurrentFragment(){

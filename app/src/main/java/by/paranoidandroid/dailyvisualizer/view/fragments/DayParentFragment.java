@@ -2,10 +2,14 @@ package by.paranoidandroid.dailyvisualizer.view.fragments;
 
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.fragment.app.Fragment;
+import by.paranoidandroid.dailyvisualizer.R;
 import by.paranoidandroid.dailyvisualizer.model.utils.Month;
 
 public class DayParentFragment extends Fragment {
+    protected FloatingActionButton fabAdd, fabAddImage, fabAddSnapshot, fabAddMusic, fabAddLocation;
     protected TextView tvTitle, tvDayOfTheWeek;
     protected int year, month, dayOfMonth, dayOfWeek;
 

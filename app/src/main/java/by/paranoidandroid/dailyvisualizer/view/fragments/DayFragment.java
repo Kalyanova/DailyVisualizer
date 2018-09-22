@@ -1,16 +1,19 @@
 package by.paranoidandroid.dailyvisualizer.view.fragments;
 
+import static android.app.Activity.RESULT_OK;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_DAY_OF_WEEK;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_MONTH;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.ARGS_YEAR;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.DATE_FORMAT;
+import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_CODE;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.FRAGMENT_TAG_5;
 import static by.paranoidandroid.dailyvisualizer.model.utils.Constants.SONG_DATE_NOTIFICATION_ID;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,7 +33,7 @@ import by.paranoidandroid.dailyvisualizer.view.utils.MusicService;
 import by.paranoidandroid.dailyvisualizer.viewmodel.DayViewModel;
 import java.util.Locale;
 
-public class DayFragment extends DayParentFragment {
+public class DayFragment extends DayParentFragment implements DialogDeleteDayFragment.OnDismissDialogListener {
     OnDayEditModeListener onDayEditModeListener;
     TextView tvDescription;
     ImageView ivDay;
@@ -41,6 +44,9 @@ public class DayFragment extends DayParentFragment {
     Integer music = -1;
     ImageButton muteButton;
     Boolean isMuted = false;
+    DialogDeleteDayFragment dialogFragment;
+    int stateDialogButton;
+    boolean dayIsAdded;
 
     public static DayFragment newInstance(int year, int month, int dayOfMonth, int dayOfWeek) {
         DayFragment fragment = new DayFragment();
@@ -71,6 +77,8 @@ public class DayFragment extends DayParentFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
+        dialogFragment = new DialogDeleteDayFragment();
+        dialogFragment.setListenerDissmis(this);
     }
 
     @Override
@@ -79,10 +87,12 @@ public class DayFragment extends DayParentFragment {
         Bundle bundle = (savedInstanceState == null)
                 ? getArguments()
                 : savedInstanceState;
-        year = bundle.getInt(ARGS_YEAR);
-        month = bundle.getInt(ARGS_MONTH);
-        dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
-        dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
+        if(!dayIsAdded){
+            year = bundle.getInt(ARGS_YEAR);
+            month = bundle.getInt(ARGS_MONTH);
+            dayOfMonth = bundle.getInt(ARGS_DAY_OF_MONTH);
+            dayOfWeek = bundle.getInt(ARGS_DAY_OF_WEEK);
+        }
         tvTitle = view.findViewById(R.id.tv_preview_day);
         tvTitle.setText(getDayTitle(year, month, dayOfMonth));
         muteButton = view.findViewById(R.id.mute_music_button);
@@ -119,12 +129,17 @@ public class DayFragment extends DayParentFragment {
                     btShowLocation.setVisibility(View.GONE);
                 }
                 if (day.getMusic() != -1) {
+                    muteButton.setClickable(true);
                     music = day.getMusic();
+                } else {
+                    muteButton.setClickable(false);
                 }
             } else {
                 tvDescription.setText(getString(R.string.label_empty_day));
                 ivDay.setImageDrawable(null);
                 btShowLocation.setVisibility(View.GONE);
+                muteButton.setClickable(false);
+                isMuted = true;
             }
         });
 
@@ -143,6 +158,7 @@ public class DayFragment extends DayParentFragment {
         if (!isMuted && music != -1)
             startMusicService(music);
 
+        hideFABs();
         return view;
     }
 
@@ -151,6 +167,24 @@ public class DayFragment extends DayParentFragment {
         inflater.inflate(R.menu.menu_day, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == FRAGMENT_CODE){
+                dayIsAdded = true;
+                Log.d("UPDATEEE", "UPDATE");
+                year = data.getIntExtra(ARGS_YEAR,0);
+                month = data.getIntExtra(ARGS_MONTH,0);
+                dayOfMonth = data.getIntExtra(ARGS_DAY_OF_MONTH,0);
+                dayOfWeek = data.getIntExtra(ARGS_DAY_OF_WEEK,0);
+            }
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -163,6 +197,7 @@ public class DayFragment extends DayParentFragment {
                         month,
                         dayOfMonth,
                         dayOfWeek);
+                editModeFragment.setTargetFragment(this,  FRAGMENT_CODE);
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.main_container, editModeFragment, FRAGMENT_TAG_5)
@@ -172,9 +207,8 @@ public class DayFragment extends DayParentFragment {
             case R.id.action_delete:
                 // TODO: delete day from database
                 if (selectedDay != null) {
-                    model.deleteDay(selectedDay);
-                    selectedDay = null;
-                    Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_SHORT).show();
+                    dialogFragment.show(getFragmentManager(), "a");
+                    onDismissDialog();
                 } else {
                     Toast.makeText(getActivity(), "Nothing to delete!", Toast.LENGTH_SHORT).show();
                 }
@@ -244,5 +278,46 @@ public class DayFragment extends DayParentFragment {
 
     public interface OnDayEditModeListener {
         void onDayEditModeOpened();
+        void onDayEditModeClosed();
+    }
+
+    private void hideFABs() {
+        findFABs();
+        fabAdd.setVisibility(View.GONE);
+        fabAddImage.setVisibility(View.GONE);
+        fabAddSnapshot.setVisibility(View.GONE);
+        fabAddMusic.setVisibility(View.GONE);
+        fabAddLocation.setVisibility(View.GONE);
+    }
+
+    protected void findFABs() {
+        fabAdd = getActivity().findViewById(R.id.fab_add);
+        fabAddImage = getActivity().findViewById(R.id.fab_add_image);
+        fabAddSnapshot = getActivity().findViewById(R.id.fab_add_snapshot);
+        fabAddMusic = getActivity().findViewById(R.id.fab_add_music);
+        fabAddLocation = getActivity().findViewById(R.id.fab_add_location);
+    }
+
+    public void onDialogButtonClick(int state) {
+        if (state == 1) {
+            stateDialogButton = 1;
+        }
+    }
+
+    @Override
+    public void onDismissDialog() {
+        switch (stateDialogButton) {
+
+            case 1:
+                model.deleteDay(selectedDay);
+                selectedDay = null;
+                Toast.makeText(getActivity(), "Note deleted!", Toast.LENGTH_LONG).show();
+                stateDialogButton = 0;
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
     }
 }
