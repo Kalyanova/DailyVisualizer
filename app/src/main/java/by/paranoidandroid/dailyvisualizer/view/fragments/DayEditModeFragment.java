@@ -422,7 +422,7 @@ public class DayEditModeFragment extends DayParentFragment {
     private ImageView createImageView(OnClickListener listenerDelete) {
         LayoutInflater li = LayoutInflater.from(getActivity());
         View view = li.inflate(R.layout.image_view_delete_button, null);
-        container.addView(view, container.getChildCount()-1);
+        container.addView(view, container.getChildCount());
         ImageView iv  = view.findViewById(R.id.iv_picture);
         view.findViewById(R.id.ib_delete_image).setOnClickListener(listenerDelete);
         return iv;
