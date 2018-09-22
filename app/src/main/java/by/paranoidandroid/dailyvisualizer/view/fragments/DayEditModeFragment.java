@@ -257,8 +257,7 @@ public class DayEditModeFragment extends DayParentFragment {
         );
 
         fabAddImage.setOnClickListener(v -> {
-            fabAddSnapshot.setClickable(false);
-            fabAddImage.setClickable(false);
+
             performImageFileSearch();
             closeFABMenu();
         });
@@ -274,9 +273,6 @@ public class DayEditModeFragment extends DayParentFragment {
         });
 
         fabAddSnapshot.setOnClickListener(v -> {
-
-            fabAddImage.setClickable(false);
-            fabAddSnapshot.setClickable(false);
             if (!checkPermission(permission.WRITE_EXTERNAL_STORAGE,
                 permission.READ_EXTERNAL_STORAGE)) {
                 requestPermissions(new String[]{permission.WRITE_EXTERNAL_STORAGE,
@@ -372,7 +368,8 @@ public class DayEditModeFragment extends DayParentFragment {
                 ImageView iv = createImageView(deleteImageLisnener, false);
                 iv.setImageBitmap(myBitmap);
                 img = iv;
-                img = iv;
+                fabAddSnapshot.setClickable(false);
+                fabAddImage.setClickable(false);
             } else if (requestCode == REQUEST_OPEN_IMAGE) {
                 // The document selected by the user won't be returned in the intent.
                 // Instead, a URI to that document will be contained in the return intent
@@ -384,6 +381,8 @@ public class DayEditModeFragment extends DayParentFragment {
                     iv.setImageURI(uri);
                     img = iv;
                 }
+                fabAddSnapshot.setClickable(false);
+                fabAddImage.setClickable(false);
             }
         }
     }
